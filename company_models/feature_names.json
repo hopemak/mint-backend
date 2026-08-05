@@ -1,0 +1,23 @@
+[
+  "trl_level",
+  "employee_count",
+  "is_rural",
+  "has_prototype",
+  "has_patent",
+  "patent_count",
+  "requested_funding",
+  "private_funding",
+  "founder_experience",
+  "founder_previous_startups",
+  "founder_leadership",
+  "founder_tech_skill",
+  "founder_business_skill",
+  "innovation_score",
+  "market_potential",
+  "technical_feasibility",
+  "business_model",
+  "financial_plan",
+  "social_impact",
+  "team_capability",
+  "overall_risk"
+]

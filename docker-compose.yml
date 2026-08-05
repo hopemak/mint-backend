@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mint-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: mint_platform
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - mint-network
+
+  backend:
+    build: .
+    container_name: mint-backend
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      FLASK_ENV: development
+      MONGODB_URI: mongodb://admin:password@mongodb:27017
+      MONGODB_DB: mint_platform
+    depends_on:
+      - mongodb
+    volumes:
+      - ./company_models:/app/company_models
+      - ./uploads:/app/uploads
+    networks:
+      - mint-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  mint-network:
+    driver: bridge

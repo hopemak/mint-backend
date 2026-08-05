@@ -1,0 +1,124 @@
+"""
+MInT Innovation Platform - Backend API
+"""
+
+import os
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from datetime import datetime, timedelta
+import logging
+from pythonjsonlogger import jsonlogger
+import sys
+
+# Import database and swagger
+from .database import init_db
+from .swagger import init_swagger
+
+jwt = JWTManager()
+limiter = Limiter(key_func=get_remote_address, default_limits=["100 per minute", "1000 per hour"])
+
+def create_app(config_class=None):
+    app = Flask(__name__)
+    
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+    app.config['CORS_ORIGINS'] = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174')
+    app.config['MODEL_DIR'] = os.environ.get('MODEL_DIR', './company_models')
+    app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+    
+    CORS(app, origins=app.config['CORS_ORIGINS'].split(','))
+    jwt.init_app(app)
+    limiter.init_app(app)
+    
+    setup_logging(app)
+    
+    # Initialize database
+    with app.app_context():
+        init_db()
+        logging.info("✅ Database initialized")
+    
+    # Initialize Swagger
+    init_swagger(app)
+    logging.info("✅ Swagger documentation initialized at /docs")
+    
+    register_blueprints(app)
+    
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        return jsonify({
+            'status': 'healthy',
+            'service': 'mint-backend-api',
+            'version': '2.0.0',
+            'database': 'connected',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({'error': 'Resource not found'}), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        app.logger.error(f"Internal error: {error}")
+        return jsonify({'error': 'Internal server error'}), 500
+    
+    return app
+
+def setup_logging(app):
+    class CustomJsonFormatter(jsonlogger.JsonFormatter):
+        def add_fields(self, log_record, record, message_dict):
+            super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
+            log_record['timestamp'] = datetime.utcnow().isoformat()
+            log_record['level'] = record.levelname
+            log_record['logger'] = record.name
+    
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = CustomJsonFormatter('%(timestamp)s %(level)s %(logger)s %(message)s')
+    handler.setFormatter(formatter)
+    
+    app.logger.handlers.clear()
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
+
+def register_blueprints(app):
+    from .routes.auth import auth_bp
+    from .routes.users import users_bp
+    from .routes.startups import startups_bp
+    from .routes.funding import funding_bp
+    from .routes.grants import grants_bp
+    from .routes.ml import ml_bp
+    from .routes.mentors import mentors_bp
+    from .routes.dashboard import dashboard_bp
+    from .routes.documents import documents_bp
+    from .routes.audit import audit_bp
+    from .routes.workspace import workspace_bp
+    
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(startups_bp, url_prefix='/api/startups')
+    app.register_blueprint(funding_bp, url_prefix='/api/funding')
+    app.register_blueprint(grants_bp, url_prefix='/api/grants')
+    app.register_blueprint(ml_bp, url_prefix='/api/ml')
+    app.register_blueprint(mentors_bp, url_prefix='/api/mentors')
+    app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
+    app.register_blueprint(documents_bp, url_prefix='/api/documents')
+    app.register_blueprint(audit_bp, url_prefix='/api/audit')
+    app.register_blueprint(workspace_bp, url_prefix='/api/workspace')
+    from app.routes.public_ml import public_ml_bp
+    app.register_blueprint(public_ml_bp)
+
+from datetime import datetime
+
+# Register public ML routes
+from app.routes.public_ml import public_ml_bp
+
+# Register ideas routes
+from app.routes.ideas import ideas_bp
+app.register_blueprint(ideas_bp)

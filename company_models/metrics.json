@@ -1,0 +1,69 @@
+{
+  "train_samples": 8000,
+  "test_samples": 2000,
+  "metrics": {
+    "accuracy": 0.763,
+    "precision": 0.6586345381526104,
+    "recall": 0.5189873417721519,
+    "f1": 0.5805309734513274,
+    "auc_roc": 0.7778865015915317
+  },
+  "cv_score": 0.7708754147667026,
+  "cv_std": 0.0023907927841839904,
+  "oob_score": 0.773,
+  "feature_importance": [
+    [
+      "innovation_score",
+      0.13823438967121854
+    ],
+    [
+      "market_potential",
+      0.11668795339684264
+    ],
+    [
+      "technical_feasibility",
+      0.10088112115189056
+    ],
+    [
+      "financial_plan",
+      0.09169165558485869
+    ],
+    [
+      "business_model",
+      0.09104238250897344
+    ],
+    [
+      "team_capability",
+      0.08838131555985697
+    ],
+    [
+      "social_impact",
+      0.08272505017852388
+    ],
+    [
+      "private_funding",
+      0.037751175252986456
+    ],
+    [
+      "requested_funding",
+      0.0376777963667629
+    ],
+    [
+      "founder_business_skill",
+      0.031473142085613845
+    ]
+  ],
+  "parameters": {
+    "n_estimators": 150,
+    "max_depth": 12,
+    "min_samples_split": 6,
+    "min_samples_leaf": 3,
+    "max_features": "sqrt",
+    "random_state": 42,
+    "class_weight": "balanced",
+    "n_jobs": -1,
+    "bootstrap": true,
+    "oob_score": true
+  },
+  "training_time_seconds": 56.886298179626465
+}

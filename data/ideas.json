@@ -1,0 +1,81 @@
+{
+  "ideas": [
+    {
+      "id": "IDEA-20260805-0962068A",
+      "title": "AgriTech Solutions",
+      "problem": "Farmers lack crop disease detection",
+      "solution": "AI-powered mobile app",
+      "category": "General",
+      "industry": "Technology",
+      "innovation_level": 5,
+      "status": "evaluated",
+      "created_at": "2026-08-05T15:39:18.629717"
+    },
+    {
+      "id": "IDEA-20260805-67922C10",
+      "title": "AgriTech Solutions",
+      "problem": "Farmers lack crop disease detection",
+      "solution": "AI-powered mobile app",
+      "category": "General",
+      "industry": "Technology",
+      "innovation_level": 5,
+      "status": "pending",
+      "created_at": "2026-08-05T15:46:01.548532"
+    },
+    {
+      "id": "IDEA-20260805-A0260FD5",
+      "title": "FinTech",
+      "problem": "20 million unbanked Ethiopians, 10 million small businesses, 5 million diaspora members sending remittances, and international development organizations. Initial focus on urban and semi-urban areas with good mobile coverage.",
+      "solution": "EthioPay is a mobile-first digital payment platform designed for the unbanked population in Ethiopia. The solution leverages USSD technology and a simple mobile app to enable secure money transfers, bill payments, and micro-savings without requiring a traditional bank account. Users can deposit and withdraw cash through a network of local agents and make payments using their phone number. The platform integrates with Ethiopia's telecommunication infrastructure to provide financial services in Amharic, Oromo, and other local languages. Key features include peer-to-peer transfers, merchant payments, utility bill payments, micro-loans based on transaction history, and a savings goal feature.",
+      "category": "FinTech",
+      "industry": "Technology",
+      "innovation_level": 5,
+      "status": "evaluated",
+      "created_at": "2026-08-05T15:51:01.909916"
+    },
+    {
+      "id": "IDEA-20260805-92F2FE27",
+      "title": "EthioPay - Mobile Payment Platform for the Unbanked",
+      "problem": "70% of Ethiopia's population is unbanked, lacking access to formal financial services. Cash-based transactions are inefficient, risky, and limit economic growth. Small businesses struggle to accept digital payments, and sending money across the country is expensive and time-consuming. The lack of financial infrastructure prevents millions from saving, borrowing, and building credit history.",
+      "solution": "EthioPay is a mobile-first digital payment platform designed for the unbanked population in Ethiopia. The solution leverages USSD technology and a simple mobile app to enable secure money transfers, bill payments, and micro-savings without requiring a traditional bank account. Users can deposit and withdraw cash through a network of local agents and make payments using their phone number. The platform integrates with Ethiopia's telecommunication infrastructure to provide financial services in Amharic, Oromo, and other local languages. Key features include peer-to-peer transfers, merchant payments, utility bill payments, micro-loans based on transaction history, and a savings goal feature.",
+      "category": "FinTech",
+      "industry": "Finance",
+      "innovation_level": 7,
+      "status": "evaluated",
+      "created_at": "2026-08-05T16:04:11.838823"
+    },
+    {
+      "id": "IDEA-20260805-32E32AAA",
+      "title": "AgriSense AI - Smart Farming Platform for Ethiopian Farmers",
+      "problem": "Ethiopian smallholder farmers face a critical challenge: they lose up to 60% of their crops annually due to late detection of plant diseases, pests, and nutrient deficiencies. Traditional methods of disease identification rely on visual inspection by farmers who lack specialized training, or require sending samples to agricultural extension offices that are often days away. This delay results in catastrophic crop losses, food insecurity, and economic hardship for millions of farming families across Ethiopia. The situation is exacerbated by climate change, which is introducing new pests and diseases that farmers have never encountered before. Currently, there is no accessible, affordable, and user-friendly solution that provides real-time, accurate crop disease detection to smallholder farmers in rural Ethiopia, where internet connectivity is limited and smartphone penetration is growing but still low.\n\nThe problem affects approximately 5 million smallholder farmers who produce 95% of Ethiopia's agricultural output. Each year, crop losses due to diseases and pests cost the Ethiopian economy an estimated $2 billion, contributing to food insecurity and poverty. With the population growing rapidly and climate change intensifying, the need for innovative agricultural solutions has never been more urgent. Farmers need a solution that works offline, provides instant results, and delivers actionable recommendations in local languages.",
+      "solution": "AgriSense AI is a groundbreaking agricultural technology platform that leverages artificial intelligence, computer vision, and Internet of Things (IoT) sensors to provide real-time, accurate crop disease detection and management solutions to Ethiopian smallholder farmers. The platform works through a mobile application that can function both online and offline, making it accessible even in areas with limited internet connectivity.\n\nKey Features:\n\n1. AI-Powered Disease Detection: Farmers can simply take a photo of their crops using a smartphone camera, and the AI model, trained on over 50,000 Ethiopian plant images, instantly identifies diseases, pests, and nutrient deficiencies with 95% accuracy. The system can detect 15+ common crop diseases including wheat rust, maize lethal necrosis, tomato blight, and coffee wilt.\n\n2. Multi-Language SMS Alerts: The platform sends immediate SMS alerts in Amharic, Oromo, Tigrinya, and other local languages, providing treatment recommendations and preventive measures that farmers can implement immediately.\n\n3. IoT Sensor Integration: Low-cost, solar-powered sensors monitor soil moisture, pH levels, temperature, and humidity, sending predictive alerts before disease outbreaks occur, allowing farmers to take preventive action.\n\n4. Offline Functionality: The mobile app works offline, with models cached locally on the device, ensuring farmers in remote areas can access the service without internet connectivity.\n\n5. Community Knowledge Platform: Farmers can connect with agricultural experts, extension officers, and other farmers through a community forum, sharing experiences, best practices, and success stories.\n\n6. Market Intelligence: The platform provides real-time market prices, weather forecasts, and crop management recommendations, helping farmers make informed decisions about planting, harvesting, and selling their produce.\n\n7. Personalized Crop Management: The AI system provides customized recommendations based on the specific crop, region, and local weather conditions, ensuring farmers receive the most relevant advice for their situation.\n\nThe solution is designed to be accessible to farmers with basic smartphones, with a simple interface that requires no literacy or technical skills. For farmers without smartphones, a USSD solution is being developed that works on any mobile phone.",
+      "category": "Agriculture",
+      "industry": "Agriculture",
+      "innovation_level": 5,
+      "status": "evaluated",
+      "created_at": "2026-08-05T16:14:16.850477"
+    },
+    {
+      "id": "IDEA-20260805-6615ADFE",
+      "title": "AgriSense AI - Smart Farming Platform for Ethiopian Farmers",
+      "problem": "Ethiopian smallholder farmers lose up to 60% of their crops annually due to late detection of plant diseases, pests, and nutrient deficiencies. Traditional methods of disease identification are slow, expensive, and often inaccurate, requiring expert agricultural extension officers who are scarce in rural areas. This results in significant food insecurity, loss of income, and economic hardship for millions of farming families across the country. The problem affects approximately 5 million smallholder farmers who produce 95% of Ethiopia's agricultural output. Each year, crop losses due to diseases and pests cost the Ethiopian economy an estimated $2 billion, contributing to food insecurity and poverty. With the population growing rapidly and climate change intensifying, the need for innovative agricultural solutions has never been more urgent. Farmers need a solution that works offline, provides instant results, and delivers actionable recommendations in local languages.",
+      "solution": "AgriSense AI is a groundbreaking agricultural technology platform that leverages artificial intelligence, computer vision, and Internet of Things (IoT) sensors to provide real-time, accurate crop disease detection and management solutions to Ethiopian smallholder farmers. The platform works through a mobile application that can function both online and offline, making it accessible even in areas with limited internet connectivity. Farmers can simply take a photo of their crops using a smartphone camera, and the AI model, trained on over 50,000 Ethiopian plant images, instantly identifies diseases, pests, and nutrient deficiencies with 95% accuracy. The platform sends immediate SMS alerts in Amharic, Oromo, Tigrinya, and other local languages, providing treatment recommendations and preventive measures. IoT sensors monitor soil moisture, pH levels, temperature, and humidity, sending predictive alerts before disease outbreaks occur. The solution also includes a community knowledge-sharing platform, market price predictions, and personalized crop management recommendations. The platform is designed to be accessible to farmers with basic smartphones, with a simple interface that requires no literacy or technical skills.",
+      "category": "Agriculture",
+      "industry": "Agriculture",
+      "innovation_level": 8,
+      "status": "evaluated",
+      "created_at": "2026-08-05T16:49:30.532500"
+    },
+    {
+      "id": "IDEA-20260805-8D744D7E",
+      "title": "AgriSense AI - Smart Farming Platform for Ethiopian Farmers",
+      "problem": "Ethiopian smallholder farmers lose up to 60% of their crops annually due to late detection of plant diseases, pests, and nutrient deficiencies. Traditional methods of disease identification are slow, expensive, and often inaccurate, requiring expert agricultural extension officers who are scarce in rural areas. This results in significant food insecurity, loss of income, and economic hardship for millions of farming families across the country. The problem affects approximately 5 million smallholder farmers who produce 95% of Ethiopia's agricultural output. Each year, crop losses due to diseases and pests cost the Ethiopian economy an estimated $2 billion, contributing to food insecurity and poverty. With the population growing rapidly and climate change intensifying, the need for innovative agricultural solutions has never been more urgent. Farmers need a solution that works offline, provides instant results, and delivers actionable recommendations in local languages.",
+      "solution": "AgriSense AI is a groundbreaking agricultural technology platform that leverages artificial intelligence, computer vision, and Internet of Things (IoT) sensors to provide real-time, accurate crop disease detection and management solutions to Ethiopian smallholder farmers. The platform works through a mobile application that can function both online and offline, making it accessible even in areas with limited internet connectivity. Farmers can simply take a photo of their crops using a smartphone camera, and the AI model, trained on over 50,000 Ethiopian plant images, instantly identifies diseases, pests, and nutrient deficiencies with 95% accuracy. The platform sends immediate SMS alerts in Amharic, Oromo, Tigrinya, and other local languages, providing treatment recommendations and preventive measures. IoT sensors monitor soil moisture, pH levels, temperature, and humidity, sending predictive alerts before disease outbreaks occur. The solution also includes a community knowledge-sharing platform, market price predictions, and personalized crop management recommendations. The platform is designed to be accessible to farmers with basic smartphones, with a simple interface that requires no literacy or technical skills.",
+      "category": "Agriculture",
+      "industry": "Agriculture",
+      "innovation_level": 5,
+      "status": "evaluated",
+      "created_at": "2026-08-05T17:03:43.974401"
+    }
+  ]
+}

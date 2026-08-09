@@ -108,3 +108,60 @@ def get_audit_summary():
         'success': True,
         'data': summary
     }), 200
+
+@audit_bp.route('/security-alerts', methods=['GET'])
+@jwt_required()
+def get_security_alerts():
+    """Derive security alerts from the audit log (Admin only)"""
+    current_user_id = get_jwt_identity()
+
+    users = get_collection(USERS_COLLECTION)
+    user = users.find_one({'_id': current_user_id})
+
+    if not user or user.get('role') != 'admin':
+        return jsonify({'error': 'Admin access required'}), 403
+
+    from datetime import datetime, timedelta
+    from app.audit import AUDIT_COLLECTION
+
+    collection = get_collection(AUDIT_COLLECTION)
+    since = (datetime.utcnow() - timedelta(hours=24)).isoformat()
+
+    alerts = []
+
+    # Signal 1: repeated failed logins per email in the last 24h
+    failed_logins = list(collection.find({
+        'action': 'USER_LOGIN',
+        'status': 'error',
+        'timestamp': {'$gte': since}
+    }))
+    fail_counts = {}
+    for entry in failed_logins:
+        email = (entry.get('details') or {}).get('email', 'unknown')
+        fail_counts[email] = fail_counts.get(email, 0) + 1
+
+    for email, count in fail_counts.items():
+        if count >= 3:
+            alerts.append({
+                'id': f'failed-login-{email}',
+                'level': 'high' if count >= 5 else 'medium',
+                'title': 'Repeated failed login attempts',
+                'detail': f'{count} failed login attempts for {email} in the last 24h'
+            })
+
+    # Signal 2: any role escalation to admin in the last 24h
+    role_changes = list(collection.find({
+        'action': 'USER_ROLE_UPDATE',
+        'timestamp': {'$gte': since}
+    }))
+    for entry in role_changes:
+        details = entry.get('details') or {}
+        if str(details.get('new_role', '')).lower() == 'admin':
+            alerts.append({
+                'id': f'role-escalation-{entry.get("_id")}',
+                'level': 'medium',
+                'title': 'User promoted to admin',
+                'detail': f'User {details.get("target_user_id")} was promoted to admin'
+            })
+
+    return jsonify({'success': True, 'data': alerts}), 200

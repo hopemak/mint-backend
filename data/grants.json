@@ -1,0 +1,154 @@
+{
+  "grants": [
+    {
+      "grant_id": "G-0001",
+      "grant_name": "National Innovation Grant",
+      "program": "R&D",
+      "type": "Government",
+      "max_amount": 250000,
+      "min_amount": 50000,
+      "deadline": "2026-09-10",
+      "sectors": [
+        "Seed Stage",
+        "Tech",
+        "R&D"
+      ],
+      "status": "active",
+      "funds_allocated": 350000,
+      "funds_remaining": -100000,
+      "created_by": "system",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "grant_id": "G-0002",
+      "grant_name": "Eco Innovation Grant",
+      "program": "Sustainability",
+      "type": "Government",
+      "max_amount": 300000,
+      "min_amount": 25000,
+      "deadline": "2026-08-30",
+      "sectors": [
+        "CleanTech",
+        "Sustainability"
+      ],
+      "status": "active",
+      "funds_allocated": 0,
+      "funds_remaining": 300000,
+      "created_by": "system",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "grant_id": "G-0003",
+      "grant_name": "Apex Ventures Seed Fund",
+      "program": "Seed Investment",
+      "type": "Private Investors",
+      "max_amount": 500000,
+      "min_amount": 100000,
+      "deadline": "2026-10-01",
+      "sectors": [
+        "Tech",
+        "SaaS",
+        "Fintech"
+      ],
+      "status": "active",
+      "funds_allocated": 0,
+      "funds_remaining": 500000,
+      "created_by": "system",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "grant_id": "G-0004",
+      "grant_name": "Global Health Innovation Fund",
+      "program": "Healthcare NGO Program",
+      "type": "NGO",
+      "max_amount": 150000,
+      "min_amount": 20000,
+      "deadline": "2026-09-25",
+      "sectors": [
+        "Healthcare",
+        "Social Impact"
+      ],
+      "status": "active",
+      "funds_allocated": 0,
+      "funds_remaining": 150000,
+      "created_by": "system",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "grant_id": "G-0005",
+      "grant_name": "UN Sustainable Development Accelerator",
+      "program": "International Program",
+      "type": "International Programs",
+      "max_amount": 400000,
+      "min_amount": 50000,
+      "deadline": "2026-11-15",
+      "sectors": [
+        "CleanTech",
+        "AgriTech",
+        "Social Impact"
+      ],
+      "status": "active",
+      "funds_allocated": 0,
+      "funds_remaining": 400000,
+      "created_by": "system",
+      "created_at": "2026-01-01T00:00:00"
+    }
+  ],
+  "applications": [
+    {
+      "application_id": "GA-0001",
+      "grant_id": "G-0001",
+      "startup_id": "MINT-2024-0003",
+      "user_id": "3288ee0c-50b0-4f5b-b539-2d499d705f75",
+      "amount_requested": 100000,
+      "status": "approved",
+      "notes": "",
+      "created_at": "2026-08-08T07:23:27.854861",
+      "updated_at": "2026-08-08T10:20:07.564500"
+    },
+    {
+      "application_id": "GA-0002",
+      "grant_id": "G-0001",
+      "startup_id": "MINT-2024-0002",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "amount_requested": 250000,
+      "status": "approved",
+      "notes": "",
+      "created_at": "2026-08-08T07:34:58.120674",
+      "updated_at": "2026-08-09T07:18:46.536769"
+    },
+    {
+      "application_id": "GA-0003",
+      "grant_id": "G-0005",
+      "startup_id": "MINT-2024-0002",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "amount_requested": 400000,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2026-08-08T07:35:21.855250",
+      "updated_at": "2026-08-08T07:35:21.855250"
+    },
+    {
+      "application_id": "GA-0004",
+      "grant_id": "G-0004",
+      "startup_id": "MINT-2024-0002",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "amount_requested": 150000,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2026-08-08T07:44:31.336714",
+      "updated_at": "2026-08-08T07:44:31.336714"
+    },
+    {
+      "application_id": "GA-0005",
+      "grant_id": "G-0002",
+      "startup_id": "MINT-2024-0002",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "amount_requested": 300000,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2026-08-08T08:20:19.801336",
+      "updated_at": "2026-08-08T08:20:19.801336"
+    }
+  ]
+}

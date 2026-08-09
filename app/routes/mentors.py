@@ -4,6 +4,8 @@ Mentor API - Complete mentor management
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
+from app.audit import log_action
+from app.utils.decorators import admin_required
 import json
 import os
 from datetime import datetime
@@ -40,7 +42,7 @@ def get_mentor(mentor_id):
     return jsonify({'error': 'Mentor not found'}), 404
 
 @mentors_bp.route('/', methods=['POST'])
-@jwt_required()
+@admin_required
 def create_mentor():
     data = request.get_json()
     required_fields = ['full_name', 'expertise_areas', 'years_experience']
@@ -55,6 +57,7 @@ def create_mentor():
     }
     mentors_data['mentors'].append(new_mentor)
     save_mentors_data(mentors_data)
+    log_action('MENTOR_CREATE', details={'full_name': new_mentor.get('full_name')}, status='success')
     return jsonify({'success': True, 'data': new_mentor}), 201
 
 @mentors_bp.route('/match', methods=['POST'])

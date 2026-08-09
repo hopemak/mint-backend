@@ -4,9 +4,12 @@ Startup API - Complete startup management
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.audit import log_action
 import json
 import os
 from datetime import datetime
+from app.database import get_collection, USERS_COLLECTION
+from app.utils.decorators import admin_required
 
 startups_bp = Blueprint('startups', __name__)
 
@@ -76,12 +79,59 @@ def update_startup(startup_id):
 @startups_bp.route('/<startup_id>', methods=['DELETE'])
 @jwt_required()
 def delete_startup(startup_id):
+    current_user_id = get_jwt_identity()
+    startups_data = get_startups()
+
+    target = None
+    for startup in startups_data['startups']:
+        if startup['startup_id'] == startup_id:
+            target = startup
+            break
+
+    if not target:
+        return jsonify({'error': 'Startup not found'}), 404
+
+    is_owner = target.get('user_id') == current_user_id
+    is_admin = False
+    if not is_owner:
+        users = get_collection(USERS_COLLECTION)
+        caller = users.find_one({'_id': current_user_id})
+        is_admin = bool(caller) and str(caller.get('role', '')).lower() == 'admin'
+
+    if not is_owner and not is_admin:
+        return jsonify({'error': 'Not authorized to delete this startup'}), 403
+
+    startups_data['startups'] = [s for s in startups_data['startups'] if s['startup_id'] != startup_id]
+    save_startups(startups_data)
+    log_action('STARTUP_DELETE', details={'startup_id': startup_id}, status='success')
+    return jsonify({'success': True, 'message': 'Startup deleted'}), 200
+
+@startups_bp.route('/<startup_id>/status', methods=['PUT'])
+@admin_required
+def update_startup_status(startup_id):
+    """Approve, reject, or otherwise change a startup's review status (admin only)"""
+    data = request.get_json()
+    if not data or 'status' not in data:
+        return jsonify({'error': 'Status is required'}), 400
+
+    allowed_statuses = ['submitted', 'under_review', 'approved', 'rejected']
+    new_status = data['status']
+    if new_status not in allowed_statuses:
+        return jsonify({'error': f'Status must be one of: {", ".join(allowed_statuses)}'}), 400
+
     startups_data = get_startups()
     for i, startup in enumerate(startups_data['startups']):
         if startup['startup_id'] == startup_id:
-            startups_data['startups'].pop(i)
+            startups_data['startups'][i]['status'] = new_status
+            startups_data['startups'][i]['status_reason'] = data.get('reason', '')
+            startups_data['startups'][i]['updated_at'] = datetime.utcnow().isoformat()
             save_startups(startups_data)
-            return jsonify({'success': True, 'message': 'Startup deleted'}), 200
+            log_action(
+                'STARTUP_STATUS_UPDATE',
+                details={'startup_id': startup_id, 'new_status': new_status, 'reason': data.get('reason', '')},
+                status='success'
+            )
+            return jsonify({'success': True, 'message': 'Status updated', 'data': startups_data['startups'][i]}), 200
     return jsonify({'error': 'Startup not found'}), 404
 
 @startups_bp.route('/my', methods=['GET'])

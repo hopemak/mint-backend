@@ -4,6 +4,7 @@ Authentication Routes - With Fallback Support
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
+from app.audit import AuditLogger
 import bcrypt
 from datetime import datetime
 import uuid
@@ -91,7 +92,8 @@ def register():
                 'email': new_user['email'],
                 'full_name': new_user['full_name'],
                 'role': new_user['role']
-            }
+            },
+            'token': access_token
         }
     })
     
@@ -116,10 +118,12 @@ def login():
         user = next((u for u in _memory_users if u.get('email') == data['email']), None)
     
     if not user:
+        AuditLogger.log_user_login(data['email'], success=False)
         return jsonify({'error': 'Invalid credentials'}), 401
     
     # Check password
     if not bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
+        AuditLogger.log_user_login(data['email'], success=False)
         return jsonify({'error': 'Invalid credentials'}), 401
     
     # Check status
@@ -127,7 +131,9 @@ def login():
         return jsonify({'error': 'Account is not active'}), 403
     
     user_id = user.get('_id') or user.get('id')
-    
+
+    AuditLogger.log_user_login(data['email'], success=True)
+
     # Generate tokens
     access_token = create_access_token(identity=user_id)
     refresh_token = create_refresh_token(identity=user_id)
@@ -141,7 +147,8 @@ def login():
                 'email': user['email'],
                 'full_name': user['full_name'],
                 'role': user['role']
-            }
+            },
+            'token': access_token
         }
     })
     

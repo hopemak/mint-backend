@@ -1,0 +1,40 @@
+{
+  "papers": [
+    {
+      "paper_id": "P-0001",
+      "title": "Optimizing Edge Computing for IoT",
+      "author": "S. Fomans",
+      "takeaway": "Edge computing cuts latency for real-time IoT decisions.",
+      "tags": ["Tech", "IoT"],
+      "url": "",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "paper_id": "P-0002",
+      "title": "Neural Networks and Adoption Curves",
+      "author": "Scott Amare",
+      "takeaway": "Adoption accelerates once inference cost drops below a threshold.",
+      "tags": ["Tech", "AI"],
+      "url": "",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "paper_id": "P-0003",
+      "title": "Fintech Adoption in Emerging Markets",
+      "author": "R. Alemu",
+      "takeaway": "Mobile-first financial products outperform legacy banking rails.",
+      "tags": ["Fintech"],
+      "url": "",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "paper_id": "P-0004",
+      "title": "Sustainable Agriculture Through Sensors",
+      "author": "T. Bekele",
+      "takeaway": "Soil sensor networks reduce water usage by up to 30%.",
+      "tags": ["AgriTech", "CleanTech"],
+      "url": "",
+      "created_at": "2026-01-01T00:00:00"
+    }
+  ]
+}

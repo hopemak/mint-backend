@@ -1,12 +1,39 @@
 {
   "startups": [
     {
-      "startup_id": "MINT-2024-0001",
-      "user_id": "U-0003",
-      "business_name": "Audit Test Startup",
-      "sector": "Technology",
+      "startup_id": "MINT-2024-0006",
+      "user_id": "582b21ec-721a-4a95-b859-e396c14daee3",
+      "business_name": "AgriSense AI  ",
+      "sector": "AgriTech",
+      "trl": "7",
       "status": "submitted",
-      "created_at": "2026-07-25T15:20:52.060454"
+      "description": "AgriSense AI is an innovative precision agriculture platform that combines satellite imagery, IoT sensors, and artificial intelligence to help farmers optimize crop yields, reduce water usage, and detect plant diseases early. The platform provides real-time insights on soil health, weather patterns, and pest predictions through a mobile app and web dashboard. By leveraging computer vision and machine learning, AgriSense AI can identify crop stress 2-3 weeks before visible symptoms appear, allowing farmers to take proactive measures. The solution targets small to medium-scale farmers in Africa, offering affordable subscription plans that reduce crop losses by up to 40% and increase yields by 25% while promoting sustainable farming practices.\n\nKey Features:\n\nAI-powered crop disease detection via smartphone camera\n\nReal-time soil moisture and nutrient monitoring\n\nWeather prediction and irrigation scheduling\n\nAutomated pest alerts and treatment recommendations\n\nYield prediction and harvest optimization\n\nMobile-first design for rural farmers\n\nTarget Market: Small to medium-scale farmers in Ethiopia and East Africa\n\nRevenue Model: Freemium subscription (Basic: free, Pro: $15/month, Enterprise: custom pricing)\n\nImpact: Reduce crop losses by 40%, increase water efficiency by 30%, improve food security\n\n",
+      "created_at": "2026-08-07T13:52:21.192186",
+      "region": "ADDIS ABEBA",
+      "updated_at": "2026-08-08T18:09:11.494094"
+    },
+    {
+      "startup_id": "MINT-2024-0002",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "business_name": "AgriSense AI - Smart Farming Platform",
+      "sector": "AgriTech",
+      "trl": "1",
+      "status": "submitted",
+      "description": "hf,.jc",
+      "created_at": "2026-08-08T06:57:12.873667",
+      "region": "OROMIA",
+      "updated_at": "2026-08-08T18:09:23.290187"
+    },
+    {
+      "startup_id": "MINT-2024-0003",
+      "user_id": "3288ee0c-50b0-4f5b-b539-2d499d705f75",
+      "business_name": "Test Funding Startup",
+      "sector": "AgriTech",
+      "description": "For testing grant applications",
+      "status": "submitted",
+      "created_at": "2026-08-08T07:20:30.374009",
+      "region": "AMHARA",
+      "updated_at": "2026-08-08T18:09:40.712025"
     }
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "investors": [
+    {
+      "investor_id": "INV-0001",
+      "firm_name": "Apex Ventures",
+      "focus": "Seed & Series A",
+      "investment_stage": "Seed",
+      "preferred_sectors": ["Tech", "SaaS", "Fintech"],
+      "description": "Early-stage fund backing technical founders.",
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "investor_id": "INV-0002",
+      "firm_name": "Synergy Capital",
+      "focus": "Growth Equity",
+      "investment_stage": "Series B",
+      "preferred_sectors": ["Growth", "CleanTech", "Healthcare"],
+      "description": "Growth-stage capital for scaling startups.",
+      "created_at": "2026-01-01T00:00:00"
+    }
+  ]
+}

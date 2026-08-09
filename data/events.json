@@ -1,0 +1,43 @@
+{
+  "events": [
+    {
+      "event_id": "E-0001",
+      "title": "Startup Pitch Night",
+      "day": 26,
+      "month": 8,
+      "year": 2026,
+      "location": "Online",
+      "time": "3:00 PM",
+      "registered_users": [
+        "582b21ec-721a-4a95-b859-e396c14daee3"
+      ],
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "event_id": "E-0002",
+      "title": "Founder Roundtable",
+      "day": 17,
+      "month": 8,
+      "year": 2026,
+      "location": "Online",
+      "time": "9:00 PM",
+      "registered_users": [
+        "582b21ec-721a-4a95-b859-e396c14daee3"
+      ],
+      "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "event_id": "E-0003",
+      "title": "Demo Day Rehearsal",
+      "day": 28,
+      "month": 8,
+      "year": 2026,
+      "location": "Online",
+      "time": "3:00 PM",
+      "registered_users": [
+        "582b21ec-721a-4a95-b859-e396c14daee3"
+      ],
+      "created_at": "2026-01-01T00:00:00"
+    }
+  ]
+}

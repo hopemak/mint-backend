@@ -11,10 +11,12 @@ import os
 
 public_ml_bp = Blueprint('public_ml', __name__, url_prefix='/api/public')
 
-# Initialize Groq client
-client = Groq(
-    api_key="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"
-)
+# Initialize Groq client (key loaded from environment, never hardcoded)
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
+if not GROQ_API_KEY:
+    raise RuntimeError("GROQ_API_KEY is not set in the environment (.env)")
+
+client = Groq(api_key=GROQ_API_KEY)
 MODEL = "llama-3.3-70b-versatile"
 
 @public_ml_bp.route('/evaluate', methods=['POST', 'OPTIONS'])

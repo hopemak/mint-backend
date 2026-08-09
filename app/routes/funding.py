@@ -4,6 +4,8 @@ Funding API - MongoDB Version with Email Notifications
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.audit import log_action
+from app.utils.decorators import admin_required
 from datetime import datetime
 import uuid
 
@@ -69,6 +71,20 @@ def get_funding_requests():
     
     return jsonify({'success': True, 'data': requests}), 200
 
+@funding_bp.route('/requests/mine', methods=['GET'])
+@jwt_required()
+def get_my_funding_requests():
+    """Get funding requests for the current user only"""
+    user_id = get_jwt_identity()
+    collection = get_collection(FUNDING_REQUESTS)
+    requests = list(collection.find({'user_id': user_id}))
+
+    for req in requests:
+        req['id'] = req['_id']
+        del req['_id']
+
+    return jsonify({'success': True, 'data': requests}), 200
+
 @funding_bp.route('/requests/<request_id>', methods=['GET'])
 @jwt_required()
 def get_funding_request(request_id):
@@ -85,7 +101,7 @@ def get_funding_request(request_id):
     return jsonify({'success': True, 'data': request}), 200
 
 @funding_bp.route('/requests/<request_id>/approve', methods=['POST'])
-@jwt_required()
+@admin_required
 def approve_funding(request_id):
     """Approve a funding request"""
     data = request.get_json()
@@ -132,6 +148,7 @@ def approve_funding(request_id):
     updated['id'] = updated['_id']
     del updated['_id']
     
+    log_action('FUNDING_APPROVE', details={'request_id': request_id, 'approved_amount': approved_amount}, status='success')
     return jsonify({
         'success': True,
         'message': 'Funding approved',
@@ -139,7 +156,7 @@ def approve_funding(request_id):
     }), 200
 
 @funding_bp.route('/requests/<request_id>/reject', methods=['POST'])
-@jwt_required()
+@admin_required
 def reject_funding(request_id):
     """Reject a funding request"""
     data = request.get_json()
@@ -185,6 +202,7 @@ def reject_funding(request_id):
     updated['id'] = updated['_id']
     del updated['_id']
     
+    log_action('FUNDING_REJECT', details={'request_id': request_id, 'reason': reason}, status='success')
     return jsonify({
         'success': True,
         'message': 'Funding rejected',
@@ -192,7 +210,7 @@ def reject_funding(request_id):
     }), 200
 
 @funding_bp.route('/disburse', methods=['POST'])
-@jwt_required()
+@admin_required
 def disburse_funding():
     """Disburse approved funding"""
     data = request.get_json()
@@ -232,6 +250,7 @@ def disburse_funding():
     disbursement['id'] = disbursement['_id']
     del disbursement['_id']
     
+    log_action('FUNDING_DISBURSE', details={'disbursement_id': disbursement_id, 'request_id': data['request_id'], 'amount': data['amount']}, status='success')
     return jsonify({
         'success': True,
         'message': 'Funding disbursed successfully',

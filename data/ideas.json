@@ -76,6 +76,28 @@
       "innovation_level": 5,
       "status": "evaluated",
       "created_at": "2026-08-05T17:03:43.974401"
+    },
+    {
+      "id": "IDEA-20260806-6D7A7844",
+      "title": "AgriSense AI - Smart Farming Platform for Ethiopian Farmers",
+      "problem": "Ethiopian smallholder farmers lose up to 60% of their crops annually due to late detection of plant diseases, pests, and nutrient deficiencies. Traditional methods of disease identification are slow, expensive, and often inaccurate, requiring expert agricultural extension officers who are scarce in rural areas. This results in significant food insecurity, loss of income, and economic hardship for millions of farming families across the country. The problem affects approximately 5 million smallholder farmers who produce 95% of Ethiopia's agricultural output. Each year, crop losses due to diseases and pests cost the Ethiopian economy an estimated $2 billion, contributing to food insecurity and poverty. With the population growing rapidly and climate change intensifying, the need for innovative agricultural solutions has never been more urgent. Farmers need a solution that works offline, provides instant results, and delivers actionable recommendations in local languages.",
+      "solution": "AgriSense AI is a groundbreaking agricultural technology platform that leverages artificial intelligence, computer vision, and Internet of Things (IoT) sensors to provide real-time, accurate crop disease detection and management solutions to Ethiopian smallholder farmers. The platform works through a mobile application that can function both online and offline, making it accessible even in areas with limited internet connectivity. Farmers can simply take a photo of their crops using a smartphone camera, and the AI model, trained on over 50,000 Ethiopian plant images, instantly identifies diseases, pests, and nutrient deficiencies with 95% accuracy. The platform sends immediate SMS alerts in Amharic, Oromo, Tigrinya, and other local languages, providing treatment recommendations and preventive measures. IoT sensors monitor soil moisture, pH levels, temperature, and humidity, sending predictive alerts before disease outbreaks occur. The solution also includes a community knowledge-sharing platform, market price predictions, and personalized crop management recommendations. The platform is designed to be accessible to farmers with basic smartphones, with a simple interface that requires no literacy or technical skills.",
+      "category": "Agriculture",
+      "industry": "Agriculture",
+      "innovation_level": 8,
+      "status": "evaluated",
+      "created_at": "2026-08-06T06:16:45.222419"
+    },
+    {
+      "id": "IDEA-20260806-485C0752",
+      "title": "AgriSense AI - Smart Farming Platform for Ethiopian Farmers",
+      "problem": "Ethiopian smallholder farmers lose up to 60% of their crops annually due to late detection of plant diseases, pests, and nutrient deficiencies. Traditional methods of disease identification are slow, expensive, and often inaccurate, requiring expert agricultural extension officers who are scarce in rural areas. This results in significant food insecurity, loss of income, and economic hardship for millions of farming families across the country. The problem affects approximately 5 million smallholder farmers who produce 95% of Ethiopia's agricultural output. Each year, crop losses due to diseases and pests cost the Ethiopian economy an estimated $2 billion, contributing to food insecurity and poverty. With the population growing rapidly and climate change intensifying, the need for innovative agricultural solutions has never been more urgent. Farmers need a solution that works offline, provides instant results, and delivers actionable recommendations in local languages.",
+      "solution": "AgriSense AI is a groundbreaking agricultural technology platform that leverages artificial intelligence, computer vision, and Internet of Things (IoT) sensors to provide real-time, accurate crop disease detection and management solutions to Ethiopian smallholder farmers. The platform works through a mobile application that can function both online and offline, making it accessible even in areas with limited internet connectivity. Farmers can simply take a photo of their crops using a smartphone camera, and the AI model, trained on over 50,000 Ethiopian plant images, instantly identifies diseases, pests, and nutrient deficiencies with 95% accuracy. The platform sends immediate SMS alerts in Amharic, Oromo, Tigrinya, and other local languages, providing treatment recommendations and preventive measures. IoT sensors monitor soil moisture, pH levels, temperature, and humidity, sending predictive alerts before disease outbreaks occur. The solution also includes a community knowledge-sharing platform, market price predictions, and personalized crop management recommendations. The platform is designed to be accessible to farmers with basic smartphones, with a simple interface that requires no literacy or technical skills.",
+      "category": "Agriculture",
+      "industry": "Agriculture",
+      "innovation_level": 8,
+      "status": "evaluated",
+      "created_at": "2026-08-06T06:56:03.051262"
     }
   ]
 }

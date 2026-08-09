@@ -4,6 +4,8 @@ Grant Management API - Complete grant system
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.audit import log_action
+from app.utils.decorators import admin_required
 import json
 import os
 from datetime import datetime
@@ -40,7 +42,7 @@ def get_grant(grant_id):
     return jsonify({'error': 'Grant not found'}), 404
 
 @grants_bp.route('/', methods=['POST'])
-@jwt_required()
+@admin_required
 def create_grant():
     data = request.get_json()
     required_fields = ['grant_name', 'program', 'max_amount', 'min_amount', 'deadline', 'sectors']
@@ -62,7 +64,7 @@ def create_grant():
     return jsonify({'success': True, 'data': new_grant}), 201
 
 @grants_bp.route('/<grant_id>', methods=['PUT'])
-@jwt_required()
+@admin_required
 def update_grant(grant_id):
     data = request.get_json()
     grants_data = get_grants_data()
@@ -78,7 +80,7 @@ def update_grant(grant_id):
     return jsonify({'error': 'Grant not found'}), 404
 
 @grants_bp.route('/<grant_id>', methods=['DELETE'])
-@jwt_required()
+@admin_required
 def delete_grant(grant_id):
     grants_data = get_grants_data()
     for i, grant in enumerate(grants_data['grants']):
@@ -125,6 +127,44 @@ def apply_for_grant():
     save_grants_data(grants_data)
     return jsonify({'success': True, 'message': 'Application submitted', 'data': application}), 201
 
+@grants_bp.route('/match', methods=['POST'])
+@jwt_required()
+def match_grants():
+    data = request.get_json()
+    if not data or 'startup_data' not in data:
+        return jsonify({'error': 'Startup data required'}), 400
+    grants_data = get_grants_data()
+    matches = []
+    for grant in grants_data['grants']:
+        score = 50
+        if grant.get('sectors'):
+            for sector in grant['sectors']:
+                if sector in data['startup_data'].get('sector', ''):
+                    score += 20
+                    break
+        deadline_str = grant.get('deadline')
+        if deadline_str:
+            try:
+                deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
+                days_until = (deadline - datetime.utcnow()).days
+                if 0 <= days_until <= 30:
+                    score += 20
+                elif 30 < days_until <= 90:
+                    score += 10
+            except ValueError:
+                pass
+        matches.append({
+            'grant_id': grant['grant_id'],
+            'name': grant['grant_name'],
+            'type': grant.get('type', 'Government'),
+            'deadline': grant.get('deadline'),
+            'tags': grant.get('sectors', []),
+            'amount': grant.get('max_amount', 0),
+            'match_percentage': min(score, 100)
+        })
+    matches.sort(key=lambda x: x['match_percentage'], reverse=True)
+    return jsonify({'success': True, 'data': {'matches': matches[:10]}}), 200
+
 @grants_bp.route('/applications', methods=['GET'])
 @jwt_required()
 def list_applications():
@@ -132,7 +172,7 @@ def list_applications():
     return jsonify({'success': True, 'data': grants_data['applications']}), 200
 
 @grants_bp.route('/applications/<application_id>/status', methods=['PUT'])
-@jwt_required()
+@admin_required
 def update_application_status(application_id):
     data = request.get_json()
     if 'status' not in data:
@@ -149,5 +189,6 @@ def update_application_status(application_id):
                         grant['funds_remaining'] -= app['amount_requested']
                         break
             save_grants_data(grants_data)
+            log_action('GRANT_APPLICATION_STATUS_UPDATE', details={'application_id': application_id, 'new_status': data['status']}, status='success')
             return jsonify({'success': True, 'message': 'Status updated', 'data': grants_data['applications'][i]}), 200
     return jsonify({'error': 'Application not found'}), 404

@@ -230,8 +230,10 @@ class AuditLogger:
         logs = list(collection.find(query).sort('timestamp', -1).skip(skip).limit(limit))
         
         for log in logs:
-            log['id'] = log['_id']
+            log['id'] = str(log['_id'])
             del log['_id']
+            if log.get('user_id') is not None:
+                log['user_id'] = str(log['user_id'])
         
         total = collection.count_documents(query)
         

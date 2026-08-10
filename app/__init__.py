@@ -38,6 +38,27 @@ def create_app():
             'timestamp': datetime.utcnow().isoformat()
         }
     
+    @app.route('/api/routes', methods=['GET'])
+    def list_api_routes():
+        from flask_jwt_extended import jwt_required, verify_jwt_in_request
+        try:
+            verify_jwt_in_request()
+        except Exception:
+            return {'success': False, 'error': 'Missing or invalid token'}, 401
+
+        routes = []
+        for rule in app.url_map.iter_rules():
+            if rule.endpoint == 'static' or rule.rule == '/api/routes':
+                continue
+            methods = sorted(m for m in rule.methods if m not in ('HEAD', 'OPTIONS'))
+            if not methods or not rule.rule.startswith('/api/'):
+                continue
+            for method in methods:
+                routes.append({'method': method, 'path': rule.rule})
+
+        routes = sorted(routes, key=lambda r: r['path'])
+        return {'success': True, 'data': routes}, 200
+
     logger.info("🚀 Backend initialized successfully")
     return app
 
@@ -62,8 +83,10 @@ def register_blueprints(app):
         ('documents', 'documents_bp', '/api/documents'),
         ('audit', 'audit_bp', '/api/audit'),
         ('evaluation', 'evaluation_bp', '/api/evaluations'),
+        ('version_control', 'version_control_bp', '/api/vcs'),
         ('public_ml', 'public_ml_bp', None),
         ('ideas', 'ideas_bp', None),
+        ('tasks', 'tasks_bp', '/api/tasks'),
     ]
     
     for module_name, bp_name, url_prefix in blueprints:

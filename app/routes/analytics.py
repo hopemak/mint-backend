@@ -4,6 +4,7 @@ Analytics API - Real computed metrics from platform data
 
 from flask import Blueprint, jsonify
 from app.utils.decorators import admin_required
+from flask_jwt_extended import jwt_required
 import json
 from collections import defaultdict
 from datetime import datetime
@@ -43,7 +44,7 @@ def _color_for(i):
 
 
 @analytics_bp.route('/analytics', methods=['GET'])
-@admin_required
+@jwt_required()
 def get_analytics():
     startups = _load_json(STARTUP_FILE, 'startups')
     ideas = _load_json(IDEAS_FILE, 'ideas')
@@ -64,6 +65,7 @@ def get_analytics():
         for r in funding_requests if r.get('status') == 'approved'
     )
     mentors_count = len(mentors)
+    jobs_created = sum(s.get("jobs_created", 0) for s in startups)
 
     # --- Startup Growth Trends: startups created per month, last 6 months chronologically ---
     growth_counts = defaultdict(int)
@@ -181,7 +183,9 @@ def get_analytics():
             'ideasSubmitted': ideas_submitted,
             'totalFunding': f'${total_funding:,}',
             'mentors': mentors_count,
+            'jobsCreated': jobs_created,
             'growthTrend': growth_trend,
+            'fundingByStage': funding_by_stage_approved,
             'fundingByStageRequested': funding_by_stage_requested,
             'fundingByStageApproved': funding_by_stage_approved,
             'submissionsByQuarter': submissions_by_quarter,
@@ -189,9 +193,6 @@ def get_analytics():
             'sectorDistribution': sector_distribution,
             'statusDistribution': status_distribution,
             'fundingPipeline': funding_pipeline,
-            'grantFunnel': grant_funnel,
-            'totalEventRegistrations': total_event_registrations,
-            'mentorSessionRequests': len(session_requests),
-            'eventRegistrationsByEvent': event_registrations_by_event,
+            'eventRegistrations': event_registrations_by_event,
         }
     }), 200

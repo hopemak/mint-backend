@@ -19,8 +19,9 @@
       "category": "General",
       "industry": "Technology",
       "innovation_level": 5,
-      "status": "pending",
-      "created_at": "2026-08-05T15:46:01.548532"
+      "status": "evaluated",
+      "created_at": "2026-08-05T15:46:01.548532",
+      "updated_at": "2026-08-10T20:03:09.725489"
     },
     {
       "id": "IDEA-20260805-A0260FD5",
@@ -98,6 +99,17 @@
       "innovation_level": 8,
       "status": "evaluated",
       "created_at": "2026-08-06T06:56:03.051262"
+    },
+    {
+      "id": "IDEA-20260810-EBF27E7F",
+      "title": "agte",
+      "problem": "it has not internet",
+      "solution": "hkljjl",
+      "category": "Agriculture",
+      "industry": "Technology",
+      "innovation_level": 5,
+      "status": "evaluated",
+      "created_at": "2026-08-10T13:16:03.143431"
     }
   ]
 }

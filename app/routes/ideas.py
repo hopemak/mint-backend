@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from datetime import datetime
 import json
 import os
@@ -123,3 +124,23 @@ def evaluate_idea(idea_id):
     save_ideas(ideas)
     
     return jsonify({'success': True, 'data': result}), 200
+
+@ideas_bp.route('/<idea_id>', methods=['PUT'])
+@jwt_required()
+def update_idea(idea_id):
+    data = request.get_json()
+    ideas = load_ideas()
+    
+    for idea in ideas['ideas']:
+        if idea.get('id') == idea_id:
+            # Update allowed fields
+            allowed = ['title', 'problem', 'solution', 'category', 'industry', 'innovation_level', 'status']
+            for field in allowed:
+                if field in data:
+                    idea[field] = data[field]
+            idea['updated_at'] = datetime.utcnow().isoformat()
+            save_ideas(ideas)
+            return jsonify({'success': True, 'data': idea}), 200
+    
+    return jsonify({'error': 'Idea not found'}), 404
+

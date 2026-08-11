@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
+    app.url_map.strict_slashes = False
     
     # Configuration
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key')

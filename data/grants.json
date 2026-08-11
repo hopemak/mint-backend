@@ -92,6 +92,86 @@
       "funds_remaining": 400000,
       "created_by": "system",
       "created_at": "2026-01-01T00:00:00"
+    },
+    {
+      "grant_id": "G-0006",
+      "grant_name": "hope",
+      "program": "agri",
+      "max_amount": 788,
+      "min_amount": 400,
+      "deadline": "2026-08-10",
+      "sectors": [
+        "."
+      ],
+      "created_at": "2026-08-10T17:12:19.162676",
+      "created_by": "2991da44-1f53-4c9e-b371-772945a15700",
+      "funds_allocated": 0,
+      "funds_remaining": 788,
+      "status": "active"
+    },
+    {
+      "grant_id": "G-0007",
+      "grant_name": "helo",
+      "program": "hdjj",
+      "max_amount": 688,
+      "min_amount": 78,
+      "deadline": "2026-08-19",
+      "sectors": [
+        "agri"
+      ],
+      "created_at": "2026-08-10T17:15:03.735060",
+      "created_by": "2991da44-1f53-4c9e-b371-772945a15700",
+      "funds_allocated": 0,
+      "funds_remaining": 688,
+      "status": "active"
+    },
+    {
+      "grant_id": "G-0008",
+      "grant_name": "hh",
+      "program": "990",
+      "max_amount": 89,
+      "min_amount": 7,
+      "deadline": "2026-07-29",
+      "sectors": [
+        "ngo"
+      ],
+      "created_at": "2026-08-10T17:16:06.823931",
+      "created_by": "2991da44-1f53-4c9e-b371-772945a15700",
+      "funds_allocated": 0,
+      "funds_remaining": 89,
+      "status": "active"
+    },
+    {
+      "grant_id": "G-0009",
+      "grant_name": "hope",
+      "program": "gno",
+      "max_amount": 89,
+      "min_amount": 60,
+      "deadline": "2026-08-11",
+      "sectors": [
+        "teck"
+      ],
+      "created_at": "2026-08-10T17:19:17.152702",
+      "created_by": "2991da44-1f53-4c9e-b371-772945a15700",
+      "funds_allocated": 0,
+      "funds_remaining": 89,
+      "status": "active"
+    },
+    {
+      "grant_id": "G-0010",
+      "grant_name": "beka",
+      "program": "jdj",
+      "max_amount": 90,
+      "min_amount": 9,
+      "deadline": "2026-08-05",
+      "sectors": [
+        "government"
+      ],
+      "created_at": "2026-08-10T17:40:46.106339",
+      "created_by": "2991da44-1f53-4c9e-b371-772945a15700",
+      "funds_allocated": 0,
+      "funds_remaining": 90,
+      "status": "active"
     }
   ],
   "applications": [

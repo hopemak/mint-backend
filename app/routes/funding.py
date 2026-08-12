@@ -107,11 +107,11 @@ def approve_funding(request_id):
     data = request.get_json()
     collection = get_collection(FUNDING_REQUESTS)
     
-    request = collection.find_one({'request_id': request_id})
-    if not request:
+    funding_request = collection.find_one({'request_id': request_id})
+    if not funding_request:
         return jsonify({'error': 'Funding request not found'}), 404
     
-    approved_amount = data.get('approved_amount', request['amount'])
+    approved_amount = data.get('approved_amount', funding_request['amount'])
     
     collection.update_one(
         {'request_id': request_id},
@@ -127,10 +127,10 @@ def approve_funding(request_id):
     # Send approval email
     try:
         startups = get_collection(STARTUPS_COLLECTION)
-        startup = startups.find_one({'startup_id': request['startup_id']})
+        startup = startups.find_one({'startup_id': funding_request['startup_id']})
         
         users = get_collection(USERS_COLLECTION)
-        user = users.find_one({'_id': request['user_id']})
+        user = users.find_one({'_id': funding_request['user_id']})
         
         if user and startup:
             send_funding_approved_email(
@@ -164,8 +164,8 @@ def reject_funding(request_id):
     data = request.get_json()
     collection = get_collection(FUNDING_REQUESTS)
     
-    request = collection.find_one({'request_id': request_id})
-    if not request:
+    funding_request = collection.find_one({'request_id': request_id})
+    if not funding_request:
         return jsonify({'error': 'Funding request not found'}), 404
     
     reason = data.get('reason', 'Not specified')
@@ -184,10 +184,10 @@ def reject_funding(request_id):
     # Send rejection email
     try:
         startups = get_collection(STARTUPS_COLLECTION)
-        startup = startups.find_one({'startup_id': request['startup_id']})
+        startup = startups.find_one({'startup_id': funding_request['startup_id']})
         
         users = get_collection(USERS_COLLECTION)
-        user = users.find_one({'_id': request['user_id']})
+        user = users.find_one({'_id': funding_request['user_id']})
         
         if user and startup:
             send_funding_rejected_email(

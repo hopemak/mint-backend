@@ -59,14 +59,14 @@ def request_funding():
     }), 201
 
 @funding_bp.route('/requests', methods=['GET'])
-@jwt_required()
+@admin_required
 def get_funding_requests():
     """Get all funding requests"""
     collection = get_collection(FUNDING_REQUESTS)
     requests = list(collection.find())
     
     for req in requests:
-        req['id'] = req['_id']
+        req['id'] = str(req['_id'])
         del req['_id']
     
     return jsonify({'success': True, 'data': requests}), 200
@@ -80,7 +80,7 @@ def get_my_funding_requests():
     requests = list(collection.find({'user_id': user_id}))
 
     for req in requests:
-        req['id'] = req['_id']
+        req['id'] = str(req['_id'])
         del req['_id']
 
     return jsonify({'success': True, 'data': requests}), 200
@@ -145,8 +145,10 @@ def approve_funding(request_id):
         current_app.logger.error(f"⚠️ Funding approval email failed: {e}")
     
     updated = collection.find_one({'request_id': request_id})
-    updated['id'] = updated['_id']
+    updated['id'] = str(updated['_id'])
     del updated['_id']
+    if updated.get('user_id') is not None:
+        updated['user_id'] = str(updated['user_id'])
     
     log_action('FUNDING_APPROVE', details={'request_id': request_id, 'approved_amount': approved_amount}, status='success')
     return jsonify({
@@ -199,8 +201,10 @@ def reject_funding(request_id):
         current_app.logger.error(f"⚠️ Funding rejection email failed: {e}")
     
     updated = collection.find_one({'request_id': request_id})
-    updated['id'] = updated['_id']
+    updated['id'] = str(updated['_id'])
     del updated['_id']
+    if updated.get('user_id') is not None:
+        updated['user_id'] = str(updated['user_id'])
     
     log_action('FUNDING_REJECT', details={'request_id': request_id, 'reason': reason}, status='success')
     return jsonify({

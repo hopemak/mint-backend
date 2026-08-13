@@ -38,6 +38,11 @@ def register():
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Missing field: {field}'}), 400
+
+    role = str(data['role']).strip().lower()
+    allowed_roles = ['founder', 'mentor', 'investor']
+    if role not in allowed_roles:
+        return jsonify({'error': 'Invalid role. Must be one of: founder, mentor, investor'}), 400
     
     coll = get_users_collection()
     
@@ -55,14 +60,15 @@ def register():
     
     # Create user
     user_id = str(uuid.uuid4())
+    account_status = 'active' if role == 'founder' else 'pending'
     new_user = {
         '_id': user_id,
         'id': user_id,
         'email': data['email'],
         'password': hashed.decode('utf-8'),
         'full_name': data['full_name'],
-        'role': data['role'],
-        'status': 'active',
+        'role': role,
+        'status': account_status,
         'created_at': datetime.utcnow().isoformat(),
         'updated_at': datetime.utcnow().isoformat(),
         'startup_id': data.get('startup_id')
@@ -127,6 +133,8 @@ def login():
         return jsonify({'error': 'Invalid credentials'}), 401
     
     # Check status
+    if user.get('status') == 'pending':
+        return jsonify({'error': 'Your account is pending admin approval. You will be notified once approved.'}), 403
     if user.get('status') != 'active':
         return jsonify({'error': 'Account is not active'}), 403
     

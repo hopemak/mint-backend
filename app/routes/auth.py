@@ -73,6 +73,14 @@ def register():
         'updated_at': datetime.utcnow().isoformat(),
         'startup_id': data.get('startup_id')
     }
+
+    if role == 'mentor':
+        new_user['expertise_areas'] = data.get('expertise_areas', '')
+        new_user['years_experience'] = data.get('years_experience', 0)
+    elif role == 'investor':
+        new_user['firm_name'] = data.get('firm_name', '')
+        new_user['focus'] = data.get('focus', '')
+        new_user['investment_stage'] = data.get('investment_stage', '')
     
     if coll is not None:
         coll.insert_one(new_user)

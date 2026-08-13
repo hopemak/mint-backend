@@ -36,9 +36,18 @@ def list_startups():
 @startups_bp.route('/<startup_id>', methods=['GET'])
 @jwt_required()
 def get_startup(startup_id):
+    current_user_id = get_jwt_identity()
     data = get_startups()
     for startup in data['startups']:
         if startup['startup_id'] == startup_id:
+            is_owner = startup.get('user_id') == current_user_id
+            is_admin = False
+            if not is_owner:
+                users = get_collection(USERS_COLLECTION)
+                caller = users.find_one({'_id': current_user_id})
+                is_admin = bool(caller) and str(caller.get('role', '')).lower() == 'admin'
+            if not is_owner and not is_admin:
+                return jsonify({'error': 'Not authorized to view this startup'}), 403
             return jsonify({'success': True, 'data': startup}), 200
     return jsonify({'error': 'Startup not found'}), 404
 
@@ -66,10 +75,19 @@ def create_startup():
 @startups_bp.route('/<startup_id>', methods=['PUT'])
 @jwt_required()
 def update_startup(startup_id):
+    current_user_id = get_jwt_identity()
     data = request.get_json()
     startups_data = get_startups()
     for i, startup in enumerate(startups_data['startups']):
         if startup['startup_id'] == startup_id:
+            is_owner = startup.get('user_id') == current_user_id
+            is_admin = False
+            if not is_owner:
+                users = get_collection(USERS_COLLECTION)
+                caller = users.find_one({'_id': current_user_id})
+                is_admin = bool(caller) and str(caller.get('role', '')).lower() == 'admin'
+            if not is_owner and not is_admin:
+                return jsonify({'error': 'Not authorized to edit this startup'}), 403
             startups_data['startups'][i].update(data)
             startups_data['startups'][i]['updated_at'] = datetime.utcnow().isoformat()
             save_startups(startups_data)

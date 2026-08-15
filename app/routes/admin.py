@@ -2,14 +2,12 @@
 Admin Routes - Institution Codes & System Management
 """
 from flask import Blueprint, request, jsonify
-from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.database import get_collection
 from datetime import datetime
 import secrets
 
 admin_bp = Blueprint('admin', __name__)
-CORS(admin_bp, origins="*")
 
 # In-memory fallbacks
 _memory_codes = []
@@ -19,7 +17,7 @@ _memory_requests = []
 @jwt_required()
 def list_institution_codes():
     codes_coll = get_collection('institution_codes')
-    if codes_coll:
+    if codes_coll is not None:
         codes = list(codes_coll.find({}, {'_id': 0}))
     else:
         codes = _memory_codes
@@ -43,7 +41,7 @@ def create_institution_code():
             'used': False,
             'created_at': datetime.utcnow().isoformat()
         }
-        if codes_coll:
+        if codes_coll is not None:
             codes_coll.insert_one(doc)
         else:
             _memory_codes.append(doc)
@@ -58,11 +56,64 @@ def create_institution_code():
 
 # --- ACCESS REQUEST WORKFLOW ---
 
+@admin_bp.route('/codes/send', methods=['POST', 'OPTIONS'])
+@jwt_required()
+def send_institution_code():
+    """Generate code and email it directly to user"""
+    data = request.get_json() or {}
+    email = data.get('email', '').strip()
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    code = f"MINT-{secrets.token_hex(4).upper()}"
+    
+    codes_coll = get_collection('institution_codes')
+    if codes_coll is not None:
+        codes_coll.insert_one({
+            'code': code,
+            'used': False,
+            'created_at': datetime.utcnow().isoformat()
+        })
+    else:
+        _memory_codes.append({
+            'code': code,
+            'used': False,
+            'created_at': datetime.utcnow().isoformat()
+        })
+
+    emailed = False
+    try:
+        from app.email import EmailService
+        svc = EmailService()
+        if svc.enabled:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail
+            sg = SendGridAPIClient(svc.api_key)
+            message = Mail(
+                from_email=svc.from_email,
+                to_emails=email,
+                subject='Your MInT Institution Access Code',
+                html_content=f'<p>Your institution code is: <strong>{code}</strong></p><p>Use this to register at MInT Innovation Platform.</p>'
+            )
+            sg.send(message)
+            emailed = True
+    except Exception as e:
+        print('Email failed:', e)
+
+    return jsonify({
+        'success': True,
+        'code': code,
+        'email': email,
+        'emailed': emailed,
+        'message': 'Code sent via email!' if emailed else f'Code generated: {code} (email not configured - copy manually)'
+    }), 201
+
+
 @admin_bp.route('/codes/requests', methods=['GET', 'OPTIONS'])
 @jwt_required()
 def list_requests():
     req_coll = get_collection('code_requests')
-    if req_coll:
+    if req_coll is not None:
         requests = list(req_coll.find({}, {'_id': 0}).sort('created_at', -1))
     else:
         requests = sorted(_memory_requests, key=lambda x: x.get('created_at', ''), reverse=True)
@@ -87,7 +138,7 @@ def submit_request():
     }
 
     req_coll = get_collection('code_requests')
-    if req_coll:
+    if req_coll is not None:
         req_coll.insert_one(doc)
     else:
         _memory_requests.append(doc)
@@ -110,7 +161,7 @@ def approve_request():
 
     # Find the request
     req_coll = get_collection('code_requests')
-    if req_coll:
+    if req_coll is not None:
         req_doc = req_coll.find_one({'request_id': request_id})
     else:
         req_doc = next((r for r in _memory_requests if r.get('request_id') == request_id), None)
@@ -126,7 +177,7 @@ def approve_request():
     
     # Save code
     codes_coll = get_collection('institution_codes')
-    if codes_coll:
+    if codes_coll is not None:
         codes_coll.insert_one({
             'code': code,
             'used': False,
@@ -140,7 +191,7 @@ def approve_request():
         })
 
     # Update request status
-    if req_coll:
+    if req_coll is not None:
         req_coll.update_one(
             {'request_id': request_id},
             {'$set': {'status': 'approved', 'code': code, 'approved_at': datetime.utcnow().isoformat()}}

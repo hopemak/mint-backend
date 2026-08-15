@@ -1,7 +1,7 @@
-
 from dotenv import load_dotenv
 load_dotenv()
 
+import os
 from app import create_app
 from flask_cors import CORS
 
@@ -13,4 +13,5 @@ CORS(app, resources={r'/api/*': {'origins': '*', 'supports_credentials': True}},
 app.url_map.strict_slashes = False
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, port=port, host='0.0.0.0')

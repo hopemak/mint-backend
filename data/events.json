@@ -9,7 +9,9 @@
       "location": "Online",
       "time": "3:00 PM",
       "registered_users": [
-        "582b21ec-721a-4a95-b859-e396c14daee3"
+        "582b21ec-721a-4a95-b859-e396c14daee3",
+        "2991da44-1f53-4c9e-b371-772945a15700",
+        "3288ee0c-50b0-4f5b-b539-2d499d705f75"
       ],
       "created_at": "2026-01-01T00:00:00"
     },
@@ -22,7 +24,8 @@
       "location": "Online",
       "time": "9:00 PM",
       "registered_users": [
-        "582b21ec-721a-4a95-b859-e396c14daee3"
+        "582b21ec-721a-4a95-b859-e396c14daee3",
+        "2991da44-1f53-4c9e-b371-772945a15700"
       ],
       "created_at": "2026-01-01T00:00:00"
     },
@@ -41,14 +44,14 @@
     },
     {
       "event_id": "E-0004",
-      "title": "hh",
-      "day": "8",
-      "month": "6",
-      "year": "15",
-      "location": "eth",
-      "time": "01:59",
+      "title": "startup",
+      "day": "11",
+      "month": "8",
+      "year": "2026",
+      "location": "woliso",
+      "time": "16:58",
       "registered_users": [],
-      "created_at": "2026-08-10T17:59:48.387279"
+      "created_at": "2026-08-11T07:58:44.389252"
     }
   ]
 }

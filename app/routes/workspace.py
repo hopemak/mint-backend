@@ -1,3 +1,4 @@
+from flask_cors import cross_origin
 
 """
 Workspace Routes
@@ -31,7 +32,8 @@ def save_comments(data):
         json.dump(data, f, indent=2)
  
  
-@workspace_bp.route('/<project_id>/comments', methods=['GET'])
+@workspace_bp.route('/<project_id>/comments', methods=['GET', 'OPTIONS'])
+@cross_origin()
 @jwt_required()
 def list_comments(project_id):
     """Get all comments for a project, newest first"""
@@ -41,7 +43,8 @@ def list_comments(project_id):
     return jsonify({'success': True, 'data': project_comments}), 200
  
  
-@workspace_bp.route('/<project_id>/comments', methods=['POST'])
+@workspace_bp.route('/<project_id>/comments', methods=['POST', 'OPTIONS'])
+@cross_origin()
 @jwt_required()
 def create_comment(project_id):
     """Post a new comment on a project, tied to the authenticated user"""

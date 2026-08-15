@@ -34,7 +34,7 @@ def register():
     if not data:
         return jsonify({'error': 'No data provided'}), 400
     
-    required_fields = ['email', 'password', 'full_name', 'role']
+    required_fields = ['email', 'password', 'full_name', 'role', 'institution_code']
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Missing field: {field}'}), 400
@@ -71,7 +71,8 @@ def register():
         'status': account_status,
         'created_at': datetime.utcnow().isoformat(),
         'updated_at': datetime.utcnow().isoformat(),
-        'startup_id': data.get('startup_id')
+        'startup_id': data.get('startup_id'),
+        'institution_code': code_value
     }
 
     if role == 'mentor':
@@ -86,6 +87,13 @@ def register():
         coll.insert_one(new_user)
     else:
         _memory_users.append(new_user)
+
+    # Mark institution code as used
+    if codes_coll is not None:
+        codes_coll.update_one(
+            {'code': code_value},
+            {'$set': {'used': True, 'used_by': user_id, 'used_at': datetime.utcnow().isoformat()}}
+        )
     
     # Send welcome email
     try:

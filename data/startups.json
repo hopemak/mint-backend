@@ -10,7 +10,9 @@
       "description": "AgriSense AI is an innovative precision agriculture platform that combines satellite imagery, IoT sensors, and artificial intelligence to help farmers optimize crop yields, reduce water usage, and detect plant diseases early. The platform provides real-time insights on soil health, weather patterns, and pest predictions through a mobile app and web dashboard. By leveraging computer vision and machine learning, AgriSense AI can identify crop stress 2-3 weeks before visible symptoms appear, allowing farmers to take proactive measures. The solution targets small to medium-scale farmers in Africa, offering affordable subscription plans that reduce crop losses by up to 40% and increase yields by 25% while promoting sustainable farming practices.\n\nKey Features:\n\nAI-powered crop disease detection via smartphone camera\n\nReal-time soil moisture and nutrient monitoring\n\nWeather prediction and irrigation scheduling\n\nAutomated pest alerts and treatment recommendations\n\nYield prediction and harvest optimization\n\nMobile-first design for rural farmers\n\nTarget Market: Small to medium-scale farmers in Ethiopia and East Africa\n\nRevenue Model: Freemium subscription (Basic: free, Pro: $15/month, Enterprise: custom pricing)\n\nImpact: Reduce crop losses by 40%, increase water efficiency by 30%, improve food security\n\n",
       "created_at": "2026-08-07T13:52:21.192186",
       "region": "ADDIS ABEBA",
-      "updated_at": "2026-08-08T18:09:11.494094"
+      "updated_at": "2026-08-13T06:16:47.746377",
+      "trl_level": "7",
+      "funding_needed": ""
     },
     {
       "startup_id": "MINT-2024-0002",
@@ -26,14 +28,45 @@
     },
     {
       "startup_id": "MINT-2024-0003",
-      "user_id": "3288ee0c-50b0-4f5b-b539-2d499d705f75",
-      "business_name": "Test Funding Startup",
-      "sector": "AgriTech",
-      "description": "For testing grant applications",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "sector": "FinTech",
+      "trl": "9",
       "status": "submitted",
-      "created_at": "2026-08-08T07:20:30.374009",
-      "region": "AMHARA",
-      "updated_at": "2026-08-08T18:09:40.712025"
+      "description": "hhhhh",
+      "business_name": "hope",
+      "created_at": "2026-08-11T06:41:46.866644"
+    },
+    {
+      "startup_id": "MINT-2024-0004",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "sector": "HealthTech",
+      "trl": "1",
+      "status": "submitted",
+      "description": "nnn",
+      "business_name": "hhhhh",
+      "created_at": "2026-08-11T06:46:17.702507",
+      "trl_level": "1",
+      "funding_needed": "",
+      "updated_at": "2026-08-11T06:46:43.473193"
+    },
+    {
+      "startup_id": "MINT-2024-0005",
+      "user_id": "3288ee0c-50b0-4f5b-b539-2d499d705f75",
+      "business_name": "Dashboard Test Co",
+      "sector": "Tech",
+      "status": "submitted",
+      "created_at": "2026-08-11T07:15:04.193521"
+    },
+    {
+      "startup_id": "MINT-2024-0006",
+      "user_id": "2991da44-1f53-4c9e-b371-772945a15700",
+      "sector": "AgriTech",
+      "region": "Addis Ababa",
+      "trl": "9",
+      "status": "submitted",
+      "description": "AquaCORE AI is a \"Virtual Water Officer\" for smallholder farms.\n\nWe combine low-cost soil sensors with satellite imagery (NDVI) and hyper-local weather APIs to feed a proprietary AI engine. This AI tells the farmer exactly when to water, how much to water, and where to place fertilizer to avoid runoff.\n\nThe Innovation: Unlike Western systems that require WiFi and expensive hardware, AquaCORE operates via SMS (USSD) and WhatsApp. The farmer receives daily actionable insights in their local language. We also utilize a \"Pay-as-you-Save\" model, where farmers pay a small subscription fee that is guaranteed to be less than the cost of the water they save.",
+      "business_name": "AquaCORE AI",
+      "created_at": "2026-08-13T06:16:16.882110"
     }
   ]
 }

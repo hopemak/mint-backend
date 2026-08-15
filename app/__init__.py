@@ -11,6 +11,17 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
+
+    @app.before_request
+    def handle_preflight():
+        from flask import request, make_response
+        if request.method == "OPTIONS":
+            response = make_response()
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+            return response
+
     app.url_map.strict_slashes = False
     
     # Configuration
@@ -19,6 +30,17 @@ def create_app():
     
     # CORS
     CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
+    # Global CORS for all responses (including error responses from jwt_required)
+    @app.after_request
+    def global_cors(response):
+        if 'Access-Control-Allow-Origin' not in response.headers:
+            response.headers.add('Access-Control-Allow-Origin', '*')
+        if 'Access-Control-Allow-Headers' not in response.headers:
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        if 'Access-Control-Allow-Methods' not in response.headers:
+            response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        return response
     
     # JWT
     JWTManager(app)
@@ -77,6 +99,7 @@ def register_blueprints(app):
         ('events', 'events_bp', '/api/events'),
         ('ml', 'ml_bp', '/api/ml'),
         ('mentors', 'mentors_bp', '/api/mentors'),
+        ('admin', 'admin_bp', '/api/admin'),
         ('messages', 'messages_bp', '/api/messages'),
         ('sessions', 'sessions_bp', '/api/sessions'),
         ('dashboard', 'dashboard_bp', '/api/dashboard'),

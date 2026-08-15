@@ -94,6 +94,7 @@ def create_task():
         return jsonify({'error': f'column must be one of: {", ".join(ALLOWED_COLUMNS)}'}), 400
 
     priority = data.get('priority', 'Medium')
+    story_points = data.get('story_points', 0)
     if priority not in ALLOWED_PRIORITIES:
         return jsonify({'error': f'priority must be one of: {", ".join(ALLOWED_PRIORITIES)}'}), 400
 
@@ -104,6 +105,7 @@ def create_task():
         'startup_id': data['startup_id'],
         'column': column,
         'priority': priority,
+        'story_points': story_points,
         'created_by': user_id,
         'created_at': now,
         'updated_at': now,

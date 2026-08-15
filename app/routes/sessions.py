@@ -8,6 +8,8 @@ import json
 import os
 from datetime import datetime
 
+from app.database import get_collection, USERS_COLLECTION
+
 sessions_bp = Blueprint('sessions', __name__)
 
 SESSION_FILE = './data/sessions.json'
@@ -31,6 +33,23 @@ def my_session_requests():
     data = get_sessions_data()
     mine = [r for r in data['requests'] if r['user_id'] == user_id]
     return jsonify({'success': True, 'data': mine}), 200
+
+@sessions_bp.route('/all', methods=['GET'])
+@jwt_required()
+def all_session_requests():
+    """All session requests across all users, with requester name attached."""
+    data = get_sessions_data()
+    users = get_collection(USERS_COLLECTION)
+
+    enriched = []
+    for r in data['requests']:
+        user = users.find_one({'_id': r['user_id']})
+        enriched.append({
+            **r,
+            'user_name': user.get('full_name', 'Unknown user') if user else 'Unknown user',
+        })
+
+    return jsonify({'success': True, 'data': enriched}), 200
 
 @sessions_bp.route('/<mentor_id>/request', methods=['POST'])
 @jwt_required()

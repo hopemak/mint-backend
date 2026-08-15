@@ -76,7 +76,8 @@
       "industry": "Agriculture",
       "innovation_level": 5,
       "status": "evaluated",
-      "created_at": "2026-08-05T17:03:43.974401"
+      "created_at": "2026-08-05T17:03:43.974401",
+      "updated_at": "2026-08-13T07:17:32.298013"
     },
     {
       "id": "IDEA-20260806-6D7A7844",
@@ -108,8 +109,9 @@
       "category": "Agriculture",
       "industry": "Technology",
       "innovation_level": 5,
-      "status": "evaluated",
-      "created_at": "2026-08-10T13:16:03.143431"
+      "status": "approved",
+      "created_at": "2026-08-10T13:16:03.143431",
+      "updated_at": "2026-08-13T13:11:26.653320"
     }
   ]
 }

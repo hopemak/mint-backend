@@ -4,60 +4,52 @@ Email Notification Service
 
 import os
 import logging
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content, TemplateId
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from typing import List, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 class EmailService:
-    """Email notification service using SendGrid"""
+    """Email notification service using Gmail SMTP"""
     
     def __init__(self):
-        self.api_key = os.environ.get('SENDGRID_API_KEY')
-        self.from_email = os.environ.get('EMAIL_FROM', 'notifications@mint.gov')
+        self.gmail_address = os.environ.get('GMAIL_ADDRESS')
+        self.gmail_app_password = os.environ.get('GMAIL_APP_PASSWORD')
         self.from_name = os.environ.get('EMAIL_FROM_NAME', 'MInT Innovation Platform')
-        self.enabled = bool(self.api_key)
+        self.enabled = bool(self.gmail_address and self.gmail_app_password)
         
         if self.enabled:
-            self.client = SendGridAPIClient(self.api_key)
-            logger.info("✅ Email service initialized")
+            logger.info("✅ Email service initialized (Gmail SMTP)")
         else:
-            logger.warning("⚠️ Email service disabled (no API key)")
+            logger.warning("⚠️ Email service disabled (no Gmail credentials)")
     
     def send_email(self, to_email: str, subject: str, html_content: str, 
                    to_name: Optional[str] = None, template_id: Optional[str] = None,
                    template_data: Optional[Dict] = None) -> bool:
-        """Send an email"""
+        """Send an email via Gmail SMTP"""
         if not self.enabled:
             logger.info(f"📧 Email would be sent to {to_email}: {subject}")
             logger.info(f"📧 Content: {html_content[:100]}...")
             return True
         
         try:
-            from_email = Email(self.from_email, self.from_name)
-            to_email_obj = To(to_email, to_name) if to_name else To(to_email)
-            
-            message = Mail(
-                from_email=from_email,
-                to_emails=to_email_obj,
-                subject=subject,
-                html_content=html_content
-            )
-            
-            if template_id and template_data:
-                message.template_id = template_id
-                message.dynamic_template_data = template_data
-            
-            response = self.client.send(message)
-            
-            if response.status_code in [200, 201, 202]:
-                logger.info(f"✅ Email sent to {to_email}")
-                return True
-            else:
-                logger.error(f"❌ Email send failed: {response.status_code}")
-                return False
-                
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = f"{self.from_name} <{self.gmail_address}>"
+            msg['To'] = to_email
+
+            msg.attach(MIMEText(html_content, 'html'))
+
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()
+                server.login(self.gmail_address, self.gmail_app_password)
+                server.sendmail(self.gmail_address, to_email, msg.as_string())
+
+            logger.info(f"✅ Email sent to {to_email}")
+            return True
+
         except Exception as e:
             logger.error(f"❌ Email error: {e}")
             return False

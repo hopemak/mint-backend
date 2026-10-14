@@ -67,6 +67,17 @@
       "description": "AquaCORE AI is a \"Virtual Water Officer\" for smallholder farms.\n\nWe combine low-cost soil sensors with satellite imagery (NDVI) and hyper-local weather APIs to feed a proprietary AI engine. This AI tells the farmer exactly when to water, how much to water, and where to place fertilizer to avoid runoff.\n\nThe Innovation: Unlike Western systems that require WiFi and expensive hardware, AquaCORE operates via SMS (USSD) and WhatsApp. The farmer receives daily actionable insights in their local language. We also utilize a \"Pay-as-you-Save\" model, where farmers pay a small subscription fee that is guaranteed to be less than the cost of the water they save.",
       "business_name": "AquaCORE AI",
       "created_at": "2026-08-13T06:16:16.882110"
+    },
+    {
+      "startup_id": "MINT-2024-0007",
+      "user_id": "3e8dd15d-fe3c-4825-9d87-0fc442295d6e",
+      "sector": "AgriTech",
+      "region": "South West Ethiopia Peoples'",
+      "trl": "4",
+      "status": "submitted",
+      "description": "bh",
+      "business_name": "hope",
+      "created_at": "2026-10-14T13:44:39.508193"
     }
   ]
 }

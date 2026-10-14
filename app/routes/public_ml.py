@@ -17,7 +17,7 @@ if not GROQ_API_KEY:
     raise RuntimeError("GROQ_API_KEY is not set in the environment (.env)")
 
 client = Groq(api_key=GROQ_API_KEY)
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 
 @public_ml_bp.route('/evaluate', methods=['POST', 'OPTIONS'])
 @cross_origin(origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "*"])

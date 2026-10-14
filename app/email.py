@@ -98,6 +98,99 @@ class EmailService:
             to_name=user_name
         )
     
+    def send_institution_code_email(self, user_email: str, user_name: str, code: str) -> bool:
+        """Send the generated institution code."""
+        html_content = f"""
+        <html><body style="font-family:Arial,sans-serif;padding:24px">
+          <h2>Hello {user_name},</h2>
+          <p>Your MInT institution code is:</p>
+          <p style="font-size:28px;font-weight:bold">{code}</p>
+          <p>Email verification is still required before login.</p>
+          <p>MInT Innovation Team</p>
+        </body></html>
+        """
+        return self.send_email(
+            to_email=user_email,
+            subject="Your MInT Institution Code",
+            html_content=html_content,
+            to_name=user_name
+        )
+
+    def send_registration_otp_email(self, user_email: str, user_name: str, otp: str) -> bool:
+        """Send the registration verification OTP."""
+        html_content = f"""
+        <html><body style="font-family:Arial,sans-serif;padding:24px">
+          <h2>Hello {user_name},</h2>
+          <p>Your MInT registration verification code is:</p>
+          <p style="font-size:32px;font-weight:bold;letter-spacing:8px">{otp}</p>
+          <p><strong>This code expires in 5 minutes.</strong></p>
+          <p>Never share this code with anyone.</p>
+          <p>MInT Innovation Team</p>
+        </body></html>
+        """
+        return self.send_email(
+            to_email=user_email,
+            subject="MInT Registration Verification Code",
+            html_content=html_content,
+            to_name=user_name
+        )
+
+    def send_login_otp_email(self, user_email: str, user_name: str, otp: str) -> bool:
+        """Send a one-time login verification code."""
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: #1D4241; padding: 20px; text-align: center;">
+                <h1 style="color: white;">MInT Login Verification</h1>
+            </div>
+
+            <div style="padding: 30px;">
+                <h2>Hello {user_name},</h2>
+
+                <p>We received a login request for your MInT Innovation Platform account.</p>
+
+                <p>Your verification code is:</p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <span style="
+                        display: inline-block;
+                        background: #f5f5f5;
+                        padding: 18px 30px;
+                        font-size: 32px;
+                        font-weight: bold;
+                        letter-spacing: 8px;
+                        border-radius: 8px;
+                    ">{otp}</span>
+                </div>
+
+                <p><strong>This code expires in 5 minutes.</strong></p>
+
+                <p>For your security, never share this verification code with anyone.</p>
+
+                <p>If you did not attempt to sign in, you can safely ignore this email.</p>
+
+                <p>
+                    Best regards,<br>
+                    <strong>MInT Innovation Team</strong>
+                </p>
+            </div>
+
+            <div style="background: #1D4241; padding: 20px; text-align: center; color: white;">
+                <p style="font-size: 12px;">
+                    MInT Innovation Management Platform
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            to_email=user_email,
+            subject="MInT Login Verification Code",
+            html_content=html_content,
+            to_name=user_name
+        )
+
     def send_funding_approved_email(self, user_email: str, user_name: str, 
                                      startup_name: str, amount: float, request_id: str) -> bool:
         """Send funding approval email"""
@@ -306,3 +399,7 @@ def send_mentor_assigned_email(user_email: str, user_name: str, mentor_name: str
 
 def send_evaluation_complete_email(user_email: str, user_name: str, startup_name: str, score: float, status: str) -> bool:
     return email_service.send_evaluation_complete_email(user_email, user_name, startup_name, score, status)
+
+def send_login_otp_email(user_email: str, user_name: str, otp: str) -> bool:
+    return email_service.send_login_otp_email(user_email, user_name, otp)
+

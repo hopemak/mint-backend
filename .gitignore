@@ -4,3 +4,14 @@ __pycache__/
 *.pyc.bak
 .venv/
 uploads/
+
+# Session backups and caches
+*.bak-*
+__pycache__/
+*.pyc
+.env
+*.backup*
+*.before-*
+*.pre-*
+*.otp-stage
+*.login-backup

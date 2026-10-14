@@ -112,6 +112,17 @@
       "status": "approved",
       "created_at": "2026-08-10T13:16:03.143431",
       "updated_at": "2026-08-13T13:11:26.653320"
+    },
+    {
+      "id": "IDEA-20261014-B1D19034",
+      "title": "argrisence",
+      "problem": "hjjj",
+      "solution": "hj",
+      "category": "Agriculture",
+      "industry": "Healthcare",
+      "innovation_level": 5,
+      "status": "evaluated",
+      "created_at": "2026-10-14T13:45:21.268044"
     }
   ]
 }

@@ -20,3 +20,8 @@ __pycache__/
 .coverage
 .deployment-backups/
 hutil
+
+# Local artifacts
+.coverage
+.deployment-backups/
+hutil

@@ -17,43 +17,148 @@ class EmailService:
     def __init__(self):
         self.gmail_address = os.environ.get('GMAIL_ADDRESS')
         self.gmail_app_password = os.environ.get('GMAIL_APP_PASSWORD')
-        self.from_name = os.environ.get('EMAIL_FROM_NAME', 'MInT Innovation Platform')
-        self.enabled = bool(self.gmail_address and self.gmail_app_password)
-        
-        if self.enabled:
-            logger.info("✅ Email service initialized (Gmail SMTP)")
+        self.api_key = os.environ.get('SENDGRID_API_KEY')
+        self.brevo_key = os.environ.get('BREVO_API_KEY')
+        self.from_email = (
+            os.environ.get('EMAIL_FROM')
+            or os.environ.get('FROM_EMAIL')
+            or self.gmail_address
+        )
+        self.from_name = os.environ.get(
+            'EMAIL_FROM_NAME', 'MInT Innovation Platform'
+        )
+        self.enabled = bool(
+            (self.brevo_key and self.from_email)
+            or (self.api_key and self.from_email)
+            or (self.gmail_address and self.gmail_app_password)
+        )
+
+        if self.brevo_key and self.from_email:
+            logger.info("Email service initialized (Brevo HTTPS)")
+        elif self.api_key and self.from_email:
+            logger.info("Email service initialized (SendGrid HTTPS)")
+        elif self.gmail_address and self.gmail_app_password:
+            logger.info("Email service initialized (Gmail SMTP fallback)")
         else:
-            logger.warning("⚠️ Email service disabled (no Gmail credentials)")
-    
-    def send_email(self, to_email: str, subject: str, html_content: str, 
-                   to_name: Optional[str] = None, template_id: Optional[str] = None,
+            logger.warning("Email service disabled: no usable provider configured")
+
+    def send_email(self, to_email: str, subject: str, html_content: str,
+                   to_name: Optional[str] = None,
+                   template_id: Optional[str] = None,
                    template_data: Optional[Dict] = None) -> bool:
-        """Send an email via Gmail SMTP"""
-        if not self.enabled:
-            logger.info(f"📧 Email would be sent to {to_email}: {subject}")
-            logger.info(f"📧 Content: {html_content[:100]}...")
-            return True
-        
-        try:
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = f"{self.from_name} <{self.gmail_address}>"
-            msg['To'] = to_email
-
-            msg.attach(MIMEText(html_content, 'html'))
-
-            with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                server.starttls()
-                server.login(self.gmail_address, self.gmail_app_password)
-                server.sendmail(self.gmail_address, to_email, msg.as_string())
-
-            logger.info(f"✅ Email sent to {to_email}")
-            return True
-
-        except Exception as e:
-            logger.error(f"❌ Email error: {e}")
+        """Send email through SendGrid HTTPS, with Gmail as fallback."""
+        if not to_email:
+            logger.error("Email delivery failed: recipient is missing")
             return False
-    
+
+        if self.brevo_key and self.from_email:
+            import json
+            from urllib.request import Request, urlopen
+            from urllib.error import HTTPError, URLError
+
+            recipient = {"email": to_email}
+            if to_name:
+                recipient["name"] = to_name
+            payload = {
+                "sender": {"name": self.from_name, "email": self.from_email},
+                "to": [recipient],
+                "subject": subject,
+                "htmlContent": html_content,
+            }
+            request = Request(
+                "https://api.brevo.com/v3/smtp/email",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "api-key": self.brevo_key,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                method="POST",
+            )
+            try:
+                with urlopen(request, timeout=20) as response:
+                    if 200 <= response.status < 300:
+                        logger.info("Email accepted by Brevo for %s", to_email)
+                        return True
+                    logger.error("Brevo returned HTTP %s", response.status)
+                    return False
+            except HTTPError as exc:
+                detail = ""
+                try:
+                    detail = exc.read().decode("utf-8", "replace")[:300]
+                except Exception:
+                    pass
+                logger.error("Brevo rejected email (HTTP %s): %s", exc.code, detail)
+                return False
+            except (URLError, TimeoutError, OSError) as exc:
+                logger.error("Brevo delivery request failed: %s", exc)
+                return False
+
+        if self.api_key and self.from_email:
+            import json
+            from urllib.request import Request, urlopen
+            from urllib.error import HTTPError, URLError
+
+            payload = {
+                "personalizations": [{
+                    "to": [{"email": to_email, **(
+                        {"name": to_name} if to_name else {}
+                    )}]
+                }],
+                "from": {
+                    "email": self.from_email,
+                    "name": self.from_name
+                },
+                "subject": subject,
+                "content": [{"type": "text/html", "value": html_content}]
+            }
+            request = Request(
+                "https://api.sendgrid.com/v3/mail/send",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                method="POST"
+            )
+            try:
+                with urlopen(request, timeout=20) as response:
+                    if 200 <= response.status < 300:
+                        logger.info("Email accepted by SendGrid for %s", to_email)
+                        return True
+                    logger.error("SendGrid returned HTTP %s", response.status)
+                    return False
+            except HTTPError as exc:
+                logger.error("SendGrid rejected email (HTTP %s)", exc.code)
+                return False
+            except (URLError, TimeoutError, OSError) as exc:
+                logger.error("SendGrid delivery request failed: %s", exc)
+                return False
+
+        if self.gmail_address and self.gmail_app_password:
+            try:
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = subject
+                msg['From'] = f"{self.from_name} <{self.gmail_address}>"
+                msg['To'] = to_email
+                msg.attach(MIMEText(html_content, 'html'))
+
+                with smtplib.SMTP('smtp.gmail.com', 587, timeout=20) as server:
+                    server.starttls()
+                    server.login(self.gmail_address, self.gmail_app_password)
+                    server.sendmail(
+                        self.gmail_address, to_email, msg.as_string()
+                    )
+
+                logger.info("Email sent to %s using Gmail", to_email)
+                return True
+            except Exception as exc:
+                logger.error("Gmail email delivery failed: %s", exc)
+                return False
+
+        logger.error("Email delivery failed: no provider is configured")
+        return False
+
     # =============================================
     # TEMPLATED EMAILS
     # =============================================

@@ -30,6 +30,26 @@ def get_users_collection():
         return coll
     return None
 
+def _discard_unverified_user(user, email):
+    users_coll = get_users_collection()
+    otp_coll = get_collection('auth_otps')
+    codes_coll = get_collection('institution_codes')
+    code = user.get('institution_code')
+    if users_coll is not None:
+        users_coll.delete_one({'email': email, 'email_verified': False})
+    else:
+        _memory_users[:] = [u for u in _memory_users if u.get('email') != email]
+    if otp_coll is not None:
+        otp_coll.delete_many({'email': email, 'purpose': 'registration'})
+    else:
+        _memory_otps[:] = [o for o in _memory_otps if not (o.get('email') == email and o.get('purpose') == 'registration')]
+    if code:
+        if codes_coll is not None:
+            codes_coll.delete_one({'code': code})
+        else:
+            _memory_codes[:] = [c for c in _memory_codes if c.get('code') != code]
+
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """Register an account, generate its institution code, and verify email."""
@@ -62,7 +82,10 @@ def register():
         else next((u for u in _memory_users if u.get('email') == email), None)
     )
     if existing:
-        return jsonify({'error': 'User already exists'}), 409
+        if existing.get('email_verified') is False:
+            _discard_unverified_user(existing, email)
+        else:
+            return jsonify({'error': 'User already exists'}), 409
 
     codes_coll = get_collection('institution_codes')
     institution_code = None

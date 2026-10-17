@@ -19,3 +19,6 @@ gunicorn
 
 flasgger
 groq
+
+google-auth
+requests

@@ -887,6 +887,81 @@ def resend_otp():
     }), 200
 
 # ... (rest of auth routes: refresh, logout, me, forgot-password)
+@auth_bp.route('/google', methods=['POST'])
+def google_login():
+    """Sign in an existing, active user with a Google ID token."""
+    data = request.get_json() or {}
+    credential = str(data.get('credential', '')).strip()
+    client_id = os.environ.get('GOOGLE_CLIENT_ID', '').strip()
+
+    if not client_id:
+        return jsonify({'error': 'Google sign-in is not configured'}), 503
+    if not credential:
+        return jsonify({'error': 'Google credential is required'}), 400
+
+    try:
+        from google.oauth2 import id_token as google_id_token
+        from google.auth.transport import requests as google_requests
+        info = google_id_token.verify_oauth2_token(
+            credential, google_requests.Request(), client_id
+        )
+    except Exception:
+        return jsonify({'error': 'Invalid Google sign-in'}), 401
+
+    if not info.get('email_verified'):
+        return jsonify({'error': 'Your Google email is not verified'}), 401
+
+    email = str(info.get('email', '')).strip().lower()
+    if not email:
+        return jsonify({'error': 'Invalid Google sign-in'}), 401
+
+    coll = get_users_collection()
+    if coll is not None:
+        user = coll.find_one({'email': email})
+    else:
+        user = next((u for u in _memory_users if u.get('email') == email), None)
+
+    if not user:
+        AuditLogger.log_user_login(email, success=False)
+        return jsonify({
+            'error': 'No account found for this Google email. Please register first.'
+        }), 404
+
+    if user.get('email_verified') is False:
+        return jsonify({
+            'error': 'Please verify your email before logging in.'
+        }), 403
+
+    if user.get('status') == 'pending':
+        return jsonify({
+            'error': 'Your account is pending admin approval. You will be notified once approved.'
+        }), 403
+
+    if user.get('status') != 'active':
+        return jsonify({'error': 'Account is not active'}), 403
+
+    user_id = str(user.get('_id') or user.get('id'))
+    AuditLogger.log_user_login(email, success=True)
+
+    access_token = create_access_token(identity=user_id)
+
+    response = jsonify({
+        'success': True,
+        'message': 'Login successful',
+        'data': {
+            'user': {
+                'id': user_id,
+                'email': user['email'],
+                'full_name': user['full_name'],
+                'role': user['role']
+            },
+            'token': access_token
+        }
+    })
+    set_access_cookies(response, access_token)
+    return response, 200
+
+
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():

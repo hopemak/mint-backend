@@ -159,3 +159,39 @@ def reject_testimonial(tid):
     coll = get_collection('testimonials')
     res = coll.update_one({'_id': tid}, {'$set': {'status': 'rejected'}})
     return jsonify({'success': res.modified_count == 1}), 200
+
+
+# ---------------- Innovation map ----------------
+REGIONS = ['Tigray', 'Afar', 'Amhara', 'Benishangul-Gumuz', 'Dire Dawa', 'Harari', 'Gambela',
+           'Oromia', 'Somali', 'Addis Ababa', 'Sidama', 'Central Ethiopia',
+           'South Ethiopia', 'South West Ethiopia']
+_ALIASES = {'ADDIS ABEBA': 'Addis Ababa', 'ADDIS ABABA': 'Addis Ababa', 'OROMIA': 'Oromia',
+            'OROMIYA': 'Oromia', 'BENISHANGUL GUMUZ': 'Benishangul-Gumuz',
+            'BENISHANGUL-GUMUZ': 'Benishangul-Gumuz', 'DIRE DAWA': 'Dire Dawa',
+            'SOUTH WEST': 'South West Ethiopia', 'SOUTH WEST ETHIOPIA': 'South West Ethiopia',
+            'SOUTH ETHIOPIA': 'South Ethiopia', 'CENTRAL ETHIOPIA': 'Central Ethiopia'}
+for _r in REGIONS:
+    _ALIASES.setdefault(_r.upper(), _r)
+
+
+@public_stats_bp.route('/regions', methods=['GET'])
+def public_regions():
+    try:
+        from app.routes.startups import get_startups
+        items = (get_startups() or {}).get('startups', [])
+    except Exception as exc:
+        logger.warning('regions: startups unavailable: %s', exc)
+        items = []
+    out = {r: {'count': 0, 'sectors': {}} for r in REGIONS}
+    unassigned = 0
+    for s in items:
+        if s.get('status') in ('rejected', 'draft') or not str(s.get('business_name') or '').strip():
+            continue
+        region = _ALIASES.get(' '.join(str(s.get('region') or '').upper().split()))
+        if not region:
+            unassigned += 1
+            continue
+        out[region]['count'] += 1
+        sec = str(s.get('sector') or 'General').strip() or 'General'
+        out[region]['sectors'][sec] = out[region]['sectors'].get(sec, 0) + 1
+    return jsonify({'regions': out, 'unassigned': unassigned}), 200

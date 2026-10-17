@@ -128,3 +128,34 @@ def approve_testimonial(tid):
     coll = get_collection('testimonials')
     res = coll.update_one({'_id': tid}, {'$set': {'status': 'approved'}})
     return jsonify({'success': res.modified_count == 1}), 200
+
+
+def _require_admin():
+    users = get_collection(USERS_COLLECTION)
+    user = users.find_one({'_id': get_jwt_identity()}) if users is not None else None
+    return user if user and user.get('role') == 'admin' else None
+
+
+@public_stats_bp.route('/testimonials/admin', methods=['GET'])
+@jwt_required()
+def admin_list_testimonials():
+    if not _require_admin():
+        return jsonify({'error': 'Admin only'}), 403
+    coll = get_collection('testimonials')
+    docs = coll.find({}).sort('created_at', -1).limit(100) if coll is not None else []
+    return jsonify({'testimonials': [
+        {'id': d['_id'], 'quote': d.get('quote', ''), 'name': d.get('name', ''),
+         'company': d.get('company', ''), 'status': d.get('status', 'pending'),
+         'created_at': d.get('created_at', '')}
+        for d in docs
+    ]}), 200
+
+
+@public_stats_bp.route('/testimonials/<tid>/reject', methods=['PUT'])
+@jwt_required()
+def reject_testimonial(tid):
+    if not _require_admin():
+        return jsonify({'error': 'Admin only'}), 403
+    coll = get_collection('testimonials')
+    res = coll.update_one({'_id': tid}, {'$set': {'status': 'rejected'}})
+    return jsonify({'success': res.modified_count == 1}), 200

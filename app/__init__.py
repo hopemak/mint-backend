@@ -109,6 +109,8 @@ def register_blueprints(app):
         ('evaluation', 'evaluation_bp', '/api/evaluations'),
         ('version_control', 'version_control_bp', '/api/vcs'),
         ('system', 'system_bp', '/api/system'),
+        ('milestones', 'milestones_bp', None),
+        ('milestones', 'milestones_bp', None),
         ('public_stats', 'public_stats_bp', None),
         ('public_ml', 'public_ml_bp', None),
         ('ideas', 'ideas_bp', None),

@@ -72,3 +72,59 @@ def featured_startups():
     for r in rows:
         r.pop('created_at')
     return jsonify({'startups': rows[:3]}), 200
+
+
+# ---------------- Testimonials ----------------
+import uuid
+from datetime import datetime
+from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+
+@public_stats_bp.route('/testimonials', methods=['GET'])
+def list_testimonials():
+    coll = get_collection('testimonials')
+    if coll is None:
+        return jsonify({'testimonials': []}), 200
+    docs = coll.find({'status': 'approved'}).sort('created_at', -1).limit(6)
+    return jsonify({'testimonials': [
+        {'id': d['_id'], 'quote': d.get('quote', ''),
+         'name': d.get('name', ''), 'company': d.get('company', '')}
+        for d in docs
+    ]}), 200
+
+
+@public_stats_bp.route('/testimonials', methods=['POST'])
+@jwt_required()
+def submit_testimonial():
+    data = request.get_json() or {}
+    quote = str(data.get('quote', '')).strip()
+    company = str(data.get('company', '')).strip()
+    if len(quote) < 20 or len(quote) > 400:
+        return jsonify({'error': 'Testimonial must be 20-400 characters'}), 400
+    users = get_collection(USERS_COLLECTION)
+    user = users.find_one({'_id': get_jwt_identity()}) if users is not None else None
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    coll = get_collection('testimonials')
+    if coll is None:
+        return jsonify({'error': 'Database unavailable'}), 503
+    coll.insert_one({
+        '_id': str(uuid.uuid4()), 'user_id': user['_id'],
+        'name': user.get('full_name', 'Anonymous'), 'company': company,
+        'quote': quote, 'status': 'pending',
+        'created_at': datetime.utcnow().isoformat(),
+    })
+    return jsonify({'success': True, 'message': 'Submitted for admin approval'}), 201
+
+
+@public_stats_bp.route('/testimonials/<tid>/approve', methods=['PUT'])
+@jwt_required()
+def approve_testimonial(tid):
+    users = get_collection(USERS_COLLECTION)
+    user = users.find_one({'_id': get_jwt_identity()}) if users is not None else None
+    if not user or user.get('role') != 'admin':
+        return jsonify({'error': 'Admin only'}), 403
+    coll = get_collection('testimonials')
+    res = coll.update_one({'_id': tid}, {'$set': {'status': 'approved'}})
+    return jsonify({'success': res.modified_count == 1}), 200

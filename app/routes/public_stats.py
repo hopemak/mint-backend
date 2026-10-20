@@ -115,6 +115,7 @@ def submit_testimonial():
         'quote': quote, 'status': 'pending',
         'created_at': datetime.utcnow().isoformat(),
     })
+    _notify_new_testimonial(user.get('full_name', 'A founder'))
     return jsonify({'success': True, 'message': 'Submitted for admin approval'}), 201
 
 
@@ -127,6 +128,7 @@ def approve_testimonial(tid):
         return jsonify({'error': 'Admin only'}), 403
     coll = get_collection('testimonials')
     res = coll.update_one({'_id': tid}, {'$set': {'status': 'approved'}})
+    _notify_testimonial(coll, tid, 'approved')
     return jsonify({'success': res.modified_count == 1}), 200
 
 
@@ -158,6 +160,7 @@ def reject_testimonial(tid):
         return jsonify({'error': 'Admin only'}), 403
     coll = get_collection('testimonials')
     res = coll.update_one({'_id': tid}, {'$set': {'status': 'rejected'}})
+    _notify_testimonial(coll, tid, 'rejected')
     return jsonify({'success': res.modified_count == 1}), 200
 
 
@@ -195,3 +198,24 @@ def public_regions():
         sec = str(s.get('sector') or 'General').strip() or 'General'
         out[region]['sectors'][sec] = out[region]['sectors'].get(sec, 0) + 1
     return jsonify({'regions': out, 'unassigned': unassigned}), 200
+
+
+
+def _notify_testimonial(coll, tid, status):
+    try:
+        from app.notifications import notify
+        d = coll.find_one({'_id': tid})
+        if d:
+            msg = ('Your testimonial is now public on the landing page.' if status == 'approved'
+                   else 'Your testimonial was not approved.')
+            notify(d['user_id'], 'Testimonial ' + status, msg, '/share-story')
+    except Exception:
+        pass
+
+
+def _notify_new_testimonial(name):
+    try:
+        from app.notifications import notify_admins
+        notify_admins('New testimonial to review', name + ' submitted a testimonial.', '/admin/testimonials')
+    except Exception:
+        pass

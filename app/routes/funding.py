@@ -150,6 +150,11 @@ def approve_funding(request_id):
     if updated.get('user_id') is not None:
         updated['user_id'] = str(updated['user_id'])
     
+    try:
+        from app.notifications import notify
+        notify(funding_request.get('user_id'), 'Funding approved', 'Your funding request was approved.', '/funding')
+    except Exception:
+        pass
     log_action('FUNDING_APPROVE', details={'request_id': request_id, 'approved_amount': approved_amount}, status='success')
     return jsonify({
         'success': True,
@@ -206,6 +211,11 @@ def reject_funding(request_id):
     if updated.get('user_id') is not None:
         updated['user_id'] = str(updated['user_id'])
     
+    try:
+        from app.notifications import notify
+        notify(funding_request.get('user_id'), 'Funding request declined', 'Your funding request was not approved.', '/funding')
+    except Exception:
+        pass
     log_action('FUNDING_REJECT', details={'request_id': request_id, 'reason': reason}, status='success')
     return jsonify({
         'success': True,

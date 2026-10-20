@@ -119,6 +119,12 @@ def update_user_status(user_id):
     )
     updated = users.find_one({'_id': user_id})
     log_action('USER_STATUS_UPDATE', details={'target_user_id': user_id, 'new_status': data['status']}, status='success')
+    try:
+        from app.notifications import notify
+        if data['status'] == 'active':
+            notify(user_id, 'Account approved', 'Your account is now active.', '/dashboard')
+    except Exception:
+        pass
     return jsonify({'success': True, 'message': 'Status updated', 'data': _serialize_user(updated)}), 200
 
 

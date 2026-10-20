@@ -189,6 +189,13 @@ def update_application_status(application_id):
                         grant['funds_remaining'] -= app['amount_requested']
                         break
             save_grants_data(grants_data)
+            try:
+                from app.notifications import notify
+                if data['status'] in ('approved', 'rejected'):
+                    notify(app.get('user_id'), 'Grant application ' + data['status'],
+                           'Your grant application was ' + data['status'] + '.', '/funding')
+            except Exception:
+                pass
             log_action('GRANT_APPLICATION_STATUS_UPDATE', details={'application_id': application_id, 'new_status': data['status']}, status='success')
             return jsonify({'success': True, 'message': 'Status updated', 'data': grants_data['applications'][i]}), 200
     return jsonify({'error': 'Application not found'}), 404

@@ -68,4 +68,9 @@ def request_session(mentor_id):
     }
     data['requests'].append(new_request)
     save_sessions_data(data)
+    try:
+        from app.notifications import notify_admins
+        notify_admins('New mentor session request', 'A founder requested a mentor session.', '/admin')
+    except Exception:
+        pass
     return jsonify({'success': True, 'data': new_request}), 201

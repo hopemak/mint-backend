@@ -119,7 +119,8 @@ def evaluate_idea(idea_id):
     # Update idea status
     for i, item in enumerate(ideas['ideas']):
         if item.get('id') == idea_id:
-            ideas['ideas'][i]['status'] = 'evaluated'
+            if item.get('status') not in ('approved', 'rejected', 'revision_requested'):
+                ideas['ideas'][i]['status'] = 'evaluated'
             break
     save_ideas(ideas)
     
@@ -128,13 +129,15 @@ def evaluate_idea(idea_id):
 @ideas_bp.route('/<idea_id>', methods=['PUT'])
 @jwt_required()
 def update_idea(idea_id):
-    data = request.get_json()
+    data = request.get_json() or {}
+    if 'status' in data:
+        return jsonify({'error': 'Status can only be changed through the review route'}), 400
     ideas = load_ideas()
     
     for idea in ideas['ideas']:
         if idea.get('id') == idea_id:
             # Update allowed fields
-            allowed = ['title', 'problem', 'solution', 'category', 'industry', 'innovation_level', 'status']
+            allowed = ['title', 'problem', 'solution', 'category', 'industry', 'innovation_level']
             for field in allowed:
                 if field in data:
                     idea[field] = data[field]
@@ -144,3 +147,86 @@ def update_idea(idea_id):
     
     return jsonify({'error': 'Idea not found'}), 404
 
+
+
+# ---------------------------------------------------------------
+# ADMIN REVIEW (scores and rules are calculated on the server)
+# ---------------------------------------------------------------
+import logging
+from flask import g
+from app.admin_guard import admin_required
+from app.database import get_collection
+from app.review_rules import (
+    CRITERIA, clean_scores, compute_total, suggested_decision, check_decision
+)
+
+_log = logging.getLogger(__name__)
+
+
+@ideas_bp.route('/review-rules', methods=['GET'])
+def review_rules():
+    from app import review_rules as r
+    return jsonify({'success': True, 'data': {
+        'criteria': r.CRITERIA, 'reject_codes': r.REJECT_CODES,
+        'hard_reject_codes': r.HARD_REJECT_CODES, 'approve_min': r.APPROVE_MIN,
+        'revision_min': r.REVISION_MIN, 'min_text': r.MIN_TEXT,
+    }}), 200
+
+
+@ideas_bp.route('/<idea_id>/review', methods=['POST'])
+@admin_required
+def review_idea(idea_id):
+    data = request.get_json(silent=True) or {}
+
+    scores, err = clean_scores(data.get('scores'))
+    if err:
+        return jsonify({'error': err}), 400
+    total = compute_total(scores)
+
+    decision = data.get('decision')
+    comment = (data.get('comment') or '').strip()
+    reason_code = data.get('reason_code')
+    override = (data.get('override_reason') or '').strip()
+
+    err = check_decision(decision, total, comment, reason_code, override)
+    if err:
+        return jsonify({'error': err}), 400
+
+    ideas = load_ideas()
+    for idea in ideas['ideas']:
+        if idea.get('id') != idea_id:
+            continue
+        if idea.get('status') in ('approved', 'rejected'):
+            return jsonify({'error': 'This idea already has a final decision'}), 409
+
+        now = datetime.utcnow().isoformat()
+        admin = g.admin_user
+        review = {
+            'scores': scores,
+            'total': total,
+            'suggested': suggested_decision(total),
+            'decision': decision,
+            'reason_code': reason_code if decision == 'rejected' else None,
+            'comment': comment,
+            'override_reason': override or None,
+            'reviewed_by': str(admin.get('_id') or admin.get('id')),
+            'reviewed_by_email': admin.get('email'),
+            'reviewed_at': now,
+        }
+        idea['review'] = review
+        idea.setdefault('review_history', []).append(review)
+        idea['status'] = decision
+        idea['updated_at'] = now
+        save_ideas(ideas)
+
+        # Durable copy in MongoDB (the JSON file can be lost on redeploy)
+        try:
+            col = get_collection('idea_reviews')
+            if col is not None:
+                col.insert_one({**review, 'idea_id': idea_id, 'idea_title': idea.get('title')})
+        except Exception as exc:
+            _log.warning('Could not save review copy to MongoDB: %s', exc)
+
+        return jsonify({'success': True, 'data': idea}), 200
+
+    return jsonify({'error': 'Idea not found'}), 404

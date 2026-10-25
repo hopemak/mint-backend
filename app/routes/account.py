@@ -1,4 +1,6 @@
 """Self-service profile, password and notification endpoints."""
+import base64
+import binascii
 import bcrypt
 from datetime import datetime
 from flask import Blueprint, jsonify, request
@@ -9,6 +11,23 @@ account_bp = Blueprint('account', __name__, url_prefix='/api/account')
 notif_bp = Blueprint('notifications', __name__, url_prefix='/api/notifications')
 
 EDITABLE = {'full_name': 80, 'phone': 30, 'bio': 500, 'organization': 120, 'region': 60}
+
+# Profile photos are stored on the user record as a small data URL. The frontend crops
+# and shrinks the picture first; the server still checks everything it is sent.
+AVATAR_PREFIXES = ('data:image/jpeg;base64,', 'data:image/png;base64,', 'data:image/webp;base64,')
+AVATAR_MAX_CHARS = 200_000  # about 150 KB of image data
+
+
+def _valid_avatar(value):
+    """True when value is a real, small, base64 JPEG/PNG/WebP data URL."""
+    if not isinstance(value, str) or len(value) > AVATAR_MAX_CHARS or not value.startswith(AVATAR_PREFIXES):
+        return False
+    try:
+        raw = base64.b64decode(value.split(',', 1)[1], validate=True)
+    except (binascii.Error, ValueError):
+        return False
+    # Check the file signature so arbitrary bytes cannot be stored under an image label.
+    return raw.startswith((b'\xff\xd8\xff', b'\x89PNG\r\n\x1a\n')) or (raw[:4] == b'RIFF' and raw[8:12] == b'WEBP')
 
 
 def _me():
@@ -21,6 +40,7 @@ def _out(u):
             'role': u.get('role'), 'status': u.get('status'), 'phone': u.get('phone', ''),
             'bio': u.get('bio', ''), 'organization': u.get('organization', ''),
             'region': u.get('region', ''), 'expertise': u.get('expertise') or [],
+            'profile_image': u.get('profile_image', ''),
             'email_verified': u.get('email_verified'), 'created_at': u.get('created_at', '')}
 
 
@@ -73,6 +93,14 @@ def update_me():
             changes[k] = str(data[k]).strip()[:limit]
     if 'full_name' in changes and len(changes['full_name']) < 2:
         return jsonify({'error': 'Name is too short'}), 400
+    if 'profile_image' in data:
+        img = data['profile_image']
+        if img in ('', None):
+            changes['profile_image'] = ''  # remove the photo
+        elif _valid_avatar(img):
+            changes['profile_image'] = img
+        else:
+            return jsonify({'error': 'Profile photo must be a JPG, PNG or WebP picture under about 150 KB'}), 400
     if 'expertise' in data and isinstance(data['expertise'], list):
         changes['expertise'] = [str(x).strip()[:40] for x in data['expertise'] if str(x).strip()][:12]
     if not changes:

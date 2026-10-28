@@ -2,6 +2,7 @@
 Grant Management API - Complete grant system
 """
 
+from app.utils.matching import score_grant, grant_is_open
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.audit import log_action
@@ -134,25 +135,12 @@ def match_grants():
     if not data or 'startup_data' not in data:
         return jsonify({'error': 'Startup data required'}), 400
     grants_data = get_grants_data()
+    startup = data['startup_data'] or {}
     matches = []
     for grant in grants_data['grants']:
-        score = 50
-        if grant.get('sectors'):
-            for sector in grant['sectors']:
-                if sector in data['startup_data'].get('sector', ''):
-                    score += 20
-                    break
-        deadline_str = grant.get('deadline')
-        if deadline_str:
-            try:
-                deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
-                days_until = (deadline - datetime.utcnow()).days
-                if 0 <= days_until <= 30:
-                    score += 20
-                elif 30 < days_until <= 90:
-                    score += 10
-            except ValueError:
-                pass
+        if not grant_is_open(grant):
+            continue  # never recommend a grant whose deadline has passed
+        score, reasons = score_grant(grant, startup)
         matches.append({
             'grant_id': grant['grant_id'],
             'name': grant['grant_name'],
@@ -160,7 +148,8 @@ def match_grants():
             'deadline': grant.get('deadline'),
             'tags': grant.get('sectors', []),
             'amount': grant.get('max_amount', 0),
-            'match_percentage': min(score, 100)
+            'match_percentage': score,
+            'reasons': reasons
         })
     matches.sort(key=lambda x: x['match_percentage'], reverse=True)
     return jsonify({'success': True, 'data': {'matches': matches[:10]}}), 200

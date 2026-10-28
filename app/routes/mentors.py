@@ -2,6 +2,7 @@
 Mentor API - Complete mentor management
 """
 
+from app.utils.matching import score_mentor
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.audit import log_action
@@ -67,20 +68,16 @@ def match_mentors():
     if not data or 'startup_data' not in data:
         return jsonify({'error': 'Startup data required'}), 400
     mentors_data = get_mentors_data()
+    startup = data['startup_data'] or {}
     matches = []
     for mentor in mentors_data['mentors']:
-        score = 50
-        if mentor.get('preferred_sectors'):
-            for sector in mentor['preferred_sectors']:
-                if sector in data['startup_data'].get('sector', ''):
-                    score += 20
-        if mentor.get('years_experience', 0) >= 10:
-            score += 15
+        score, reasons = score_mentor(mentor, startup)
         matches.append({
             'mentor_id': mentor['mentor_id'],
             'name': mentor['full_name'],
             'expertise': mentor['expertise_areas'],
-            'match_percentage': min(score, 100)
+            'match_percentage': score,
+            'reasons': reasons
         })
     matches.sort(key=lambda x: x['match_percentage'], reverse=True)
     return jsonify({'success': True, 'data': {'matches': matches[:10]}}), 200

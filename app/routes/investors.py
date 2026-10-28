@@ -2,6 +2,7 @@
 Investor API - Complete investor management
 """
 
+from app.utils.matching import score_investor
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 import json
@@ -64,21 +65,17 @@ def match_investors():
     if not data or 'startup_data' not in data:
         return jsonify({'error': 'Startup data required'}), 400
     investors_data = get_investors_data()
+    startup = data['startup_data'] or {}
     matches = []
     for investor in investors_data['investors']:
-        score = 50
-        if investor.get('preferred_sectors'):
-            for sector in investor['preferred_sectors']:
-                if sector in data['startup_data'].get('sector', ''):
-                    score += 20
-        if investor.get('investment_stage'):
-            score += 10
+        score, reasons = score_investor(investor, startup)
         matches.append({
             'investor_id': investor['investor_id'],
             'name': investor['firm_name'],
             'focus': investor['focus'],
             'stage': investor['investment_stage'],
-            'match_percentage': min(score, 100)
+            'match_percentage': score,
+            'reasons': reasons
         })
     matches.sort(key=lambda x: x['match_percentage'], reverse=True)
     return jsonify({'success': True, 'data': {'matches': matches[:10]}}), 200

@@ -2,6 +2,7 @@
 Research Papers API - Curated papers with sector-based matching
 """
 
+from app.utils.matching import score_paper
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 import json
@@ -64,21 +65,18 @@ def match_papers():
     if not data or 'startup_data' not in data:
         return jsonify({'error': 'Startup data required'}), 400
     papers_data = get_papers_data()
+    startup = data['startup_data'] or {}
     matches = []
     for paper in papers_data['papers']:
-        score = 50
-        if paper.get('tags'):
-            for tag in paper['tags']:
-                if tag in data['startup_data'].get('sector', ''):
-                    score += 25
-                    break
+        score, reasons = score_paper(paper, startup)
         matches.append({
             'paper_id': paper['paper_id'],
             'title': paper['title'],
             'author': paper['author'],
             'takeaway': paper['takeaway'],
             'url': paper.get('url', ''),
-            'match_percentage': min(score, 100)
+            'match_percentage': score,
+            'reasons': reasons
         })
     matches.sort(key=lambda x: x['match_percentage'], reverse=True)
     return jsonify({'success': True, 'data': {'matches': matches[:10]}}), 200

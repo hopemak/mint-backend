@@ -118,6 +118,8 @@ def evaluate_idea(idea_id):
         'confidence_score': random.randint(70, 95)
     }
     
+    result['approval_status'] = 'Pending Review'
+    return jsonify({'success': True, 'data': result}), 200  # status stays pending until an admin decides
     # Update idea status
     for i, item in enumerate(ideas['ideas']):
         if item.get('id') == idea_id:

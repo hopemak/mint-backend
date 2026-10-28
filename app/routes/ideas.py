@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import os
 import uuid
+from app.idea_notify import attach_owner, notify_idea_decision
 
 ideas_bp = Blueprint('ideas', __name__, url_prefix='/api/ideas')
 
@@ -46,6 +47,7 @@ def create_idea():
     }
     
     ideas = load_ideas()
+    attach_owner(idea)
     ideas['ideas'].append(idea)
     save_ideas(ideas)
     
@@ -219,6 +221,7 @@ def review_idea(idea_id):
         idea['updated_at'] = now
         save_ideas(ideas)
 
+        notify_idea_decision(idea)
         # Durable copy in MongoDB (the JSON file can be lost on redeploy)
         try:
             col = get_collection('idea_reviews')

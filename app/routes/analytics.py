@@ -204,17 +204,3 @@ def get_analytics():
             'successForecast': success_forecast,
         }
     }), 200
-
-
-@analytics_bp.route('/forecast-debug', methods=['GET'])
-def forecast_debug():
-    import traceback
-    try:
-        from app.routes.ml import forecast_success
-        result = forecast_success(
-            _load_json('./data/startups.json', 'startups'),
-            _load_json('./data/evaluations.json', 'evaluations'),
-        )
-        return jsonify({'ok': True, 'forecast': result})
-    except Exception as e:
-        return jsonify({'ok': False, 'error': str(e), 'trace': traceback.format_exc()}), 500

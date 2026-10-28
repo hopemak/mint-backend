@@ -176,6 +176,13 @@ def get_analytics():
         for e in events
     ]
 
+    # --- Startup Success Forecast: Random Forest estimate for the real startups ---
+    try:
+        from app.routes.ml import forecast_success
+        success_forecast = forecast_success(startups, _load_json('./data/evaluations.json', 'evaluations'))
+    except Exception:
+        success_forecast = None
+
     return jsonify({
         'success': True,
         'data': {
@@ -194,5 +201,6 @@ def get_analytics():
             'statusDistribution': status_distribution,
             'fundingPipeline': funding_pipeline,
             'eventRegistrations': event_registrations_by_event,
+            'successForecast': success_forecast,
         }
     }), 200

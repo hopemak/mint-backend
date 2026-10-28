@@ -59,6 +59,128 @@ def prepare_features(data):
     ]
     return features
 
+
+# ── Version-proof probability + success forecast ─────────────────────────────
+# The saved forest stores raw class counts in its leaves (older scikit-learn format).
+# Newer scikit-learn versions return those counts from predict_proba, which gives values
+# far above 1. Normalising each tree's leaf values ourselves gives the correct
+# probability on every scikit-learn version, and the same answer as predict_proba on 1.3.
+
+def tree_proba_matrix(X_scaled):
+    """Success probability from every tree: array of shape (n_trees, n_rows)."""
+    X32 = np.asarray(X_scaled, dtype=np.float32)
+    rows = []
+    for tree in model.estimators_:
+        leaf_values = tree.tree_.value[tree.apply(X32)][:, 0, :]
+        rows.append(leaf_values[:, 1] / np.maximum(leaf_values.sum(axis=1), 1e-12))
+    return np.array(rows)
+
+
+def safe_proba(X_scaled):
+    """Forest success probability (mean over trees), one value per row."""
+    return tree_proba_matrix(X_scaled).mean(axis=0)
+
+
+def _num(value, default):
+    try:
+        if value is None or value == '':
+            return default
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _flag(value):
+    if isinstance(value, str):
+        return 1 if value.strip().lower() in ('1', 'true', 'yes') else 0
+    return int(bool(value))
+
+
+def _startup_inputs(startup, evaluation):
+    """Build the model inputs for one registered startup.
+    Facts the startup record has are used; everything else keeps the model defaults.
+    Scores come from the startup's latest saved AI evaluation when there is one."""
+    data = {
+        'trl_level': _num(startup.get('trl_level') or startup.get('trl'), 4),
+        'employee_count': _num(startup.get('employee_count'), 3),
+        'is_rural': _flag(startup.get('is_rural')),
+        'has_prototype': _flag(startup.get('has_prototype')),
+        'has_patent': _flag(startup.get('has_patent')),
+        'patent_count': _num(startup.get('patent_count'), 0),
+        'requested_funding': _num(startup.get('requested_funding') or startup.get('funding_needed'), 100000),
+        'private_funding': _num(startup.get('private_funding'), 0),
+    }
+    if evaluation:
+        sc = evaluation.get('scores') or {}
+        mapping = {
+            'innovation_score': 'innovation',
+            'technical_feasibility': 'feasibility',
+            'market_potential': 'marketPotential',
+            'social_impact': 'socialImpact',
+            'financial_plan': 'financialViability',
+            'business_model': 'financialViability',
+        }
+        for feature, key in mapping.items():
+            value = _num(sc.get(key), 0)
+            if value > 0:
+                data[feature] = value
+        overall = _num(evaluation.get('overall_score'), 0)
+        if overall > 0:
+            data['overall_risk'] = 100 - overall
+    return data
+
+
+def forecast_success(startups, evaluations):
+    """Model-based estimate of how many registered startups will succeed within 2 years.
+
+    Every real startup is scored by the Random Forest. For each registration month we add up
+    the success probabilities of all startups registered up to then:
+      base         = expected number of successes (sum of probabilities)
+      conservative = 10th percentile of that total across the forest's 150 trees
+      optimistic   = 90th percentile of that total across the forest's 150 trees
+    Returns None when the model is not available or there are no startups."""
+    if model is None or scaler is None or not startups:
+        return None
+
+    latest = {}
+    for ev in evaluations or []:
+        sid = ev.get('startup_id')
+        if sid and ev.get('created_at', '') >= latest.get(sid, {}).get('created_at', ''):
+            latest[sid] = ev
+
+    rows, months, scored = [], [], 0
+    for st in startups:
+        ev = latest.get(st.get('startup_id'))
+        scored += 1 if ev else 0
+        inputs = _startup_inputs(st, ev)
+        rows.append(prepare_features(inputs))
+        months.append(str(st.get('created_at') or datetime.utcnow().isoformat())[:7])
+
+    per_tree = tree_proba_matrix(scaler.transform(np.array(rows, dtype=float)))  # (trees, startups)
+    months = np.array(months)
+    series = []
+    for m in sorted(set(months))[-12:]:
+        mask = months <= m
+        totals = per_tree[:, mask].sum(axis=1)
+        base = float(totals.mean())
+        low = min(float(np.percentile(totals, 10)), base)
+        high = max(float(np.percentile(totals, 90)), base)
+        try:
+            label = datetime.strptime(m, '%Y-%m').strftime('%b %y')
+        except ValueError:
+            label = m
+        series.append({'month': label, 'conservative': round(low, 1), 'base': round(base, 1), 'optimistic': round(high, 1)})
+
+    probs = per_tree.mean(axis=0)
+    return {
+        'series': series,
+        'startups': len(rows),
+        'scored': scored,
+        'expected': round(float(probs.sum()), 1),
+        'avgProbability': round(float(probs.mean()) * 100, 1),
+    }
+
+
 @ml_bp.route('/evaluate', methods=['POST'])
 @jwt_required()
 @swag_from({
@@ -128,8 +250,8 @@ def evaluate_idea():
         features_array = np.array(features).reshape(1, -1)
         features_scaled = scaler.transform(features_array)
         
-        prediction = model.predict(features_scaled)[0]
-        probability = model.predict_proba(features_scaled)[0, 1]
+        probability = float(safe_proba(features_scaled)[0])
+        prediction = 1 if probability >= 0.5 else 0
         
         importance = dict(zip(feature_names, model.feature_importances_))
         top_features = sorted(importance.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -219,8 +341,8 @@ def predict_success():
         features_array = np.array(features).reshape(1, -1)
         features_scaled = scaler.transform(features_array)
         
-        prediction = model.predict(features_scaled)[0]
-        probability = model.predict_proba(features_scaled)[0, 1]
+        probability = float(safe_proba(features_scaled)[0])
+        prediction = 1 if probability >= 0.5 else 0
         
         importance = dict(zip(feature_names, model.feature_importances_))
         top_factors = sorted(importance.items(), key=lambda x: x[1], reverse=True)[:5]

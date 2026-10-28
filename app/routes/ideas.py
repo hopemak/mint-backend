@@ -233,3 +233,38 @@ def review_idea(idea_id):
         return jsonify({'success': True, 'data': idea}), 200
 
     return jsonify({'error': 'Idea not found'}), 404
+
+
+@ideas_bp.route('/<idea_id>/notify-owner', methods=['POST'])
+@admin_required
+def notify_owner(idea_id):
+    """Admin tool: tell an innovator about the decision on an idea.
+    For ideas submitted before owners were recorded, send the innovator's email once."""
+    import re
+    from app.database import get_collection
+    from app.idea_notify import notify_idea_decision
+
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip()
+
+    ideas = load_ideas()
+    idea = next((i for i in ideas['ideas'] if i.get('id') == idea_id), None)
+    if not idea:
+        return jsonify({'error': 'Idea not found'}), 404
+    if idea.get('status') not in ('approved', 'rejected', 'revision_requested'):
+        return jsonify({'error': 'This idea has no decision yet. Review it first.'}), 400
+
+    if email:
+        users = get_collection('users')
+        user = None
+        if users is not None:
+            user = users.find_one({'email': {'$regex': '^' + re.escape(email) + '$', '$options': 'i'}})
+        if not user:
+            return jsonify({'error': 'No user with that email'}), 404
+        idea['owner_id'] = str(user.get('_id') or user.get('id'))
+        save_ideas(ideas)
+    if not idea.get('owner_id'):
+        return jsonify({'error': 'This idea has no owner. Send the innovator email.'}), 400
+
+    notify_idea_decision(idea)
+    return jsonify({'success': True, 'message': 'Notification sent', 'status': idea.get('status')}), 200

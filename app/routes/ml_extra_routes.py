@@ -46,3 +46,26 @@ def logreg_forecast():
     if result is None:
         return jsonify({"error": "logistic model not trained yet"}), 503
     return jsonify(result), 200
+
+
+@ml_extra_bp.route("/api/ml/idea-similar-check", methods=["POST"])
+@jwt_required()
+def idea_similar_check():
+    """Founder-safe: says whether a similar idea exists, never which one."""
+    from app.routes.ideas import load_ideas
+    data = request.get_json(silent=True) or {}
+    text = _idea_text(data)
+    if len(text) < 30:
+        return jsonify({"checked": False, "similar": False, "percent": 0}), 200
+    ideas = load_ideas()
+    if isinstance(ideas, dict):
+        ideas = ideas.get("ideas", [])
+    cands = [{"id": i.get("id"), "title": "", "text": _idea_text(i)}
+             for i in ideas if isinstance(i, dict)]
+    matches = compare_ideas(text, cands, top_k=1)
+    top = matches[0] if matches else None
+    return jsonify({
+        "checked": True,
+        "similar": bool(top and top["possible_duplicate"]),
+        "percent": int(round(top["score"] * 10) * 10) if top else 0,
+    }), 200

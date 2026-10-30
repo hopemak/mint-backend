@@ -31,7 +31,7 @@ def idea_duplicates():
         return jsonify({"error": "Send 'title' and 'description' (at least 10 characters)"}), 400
     ideas = load_ideas()
     if isinstance(ideas, dict):
-        ideas = list(ideas.values())
+        ideas = ideas.get("ideas", [])
     exclude = str(data.get("exclude_id") or "")
     cands = [{"id": i.get("id"), "title": i.get("title"), "text": _idea_text(i)}
              for i in ideas if isinstance(i, dict) and str(i.get("id")) != exclude]

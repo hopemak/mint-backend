@@ -25,3 +25,6 @@ hutil
 .coverage
 .deployment-backups/
 hutil
+
+company_models/logreg.pkl
+app/__init__.py.bak

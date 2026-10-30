@@ -118,6 +118,7 @@ def register_blueprints(app):
         ('ideas', 'ideas_bp', None),
         ('tasks', 'tasks_bp', '/api/tasks'),
         ('classify_routes', 'classify_bp', None),
+        ('ml_extra_routes', 'ml_extra_bp', None),
     ]
     
     for module_name, bp_name, url_prefix in blueprints:

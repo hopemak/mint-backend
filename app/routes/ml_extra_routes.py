@@ -35,7 +35,7 @@ def idea_duplicates():
     exclude = str(data.get("exclude_id") or "")
     cands = [{"id": i.get("id"), "title": i.get("title"), "text": _idea_text(i)}
              for i in ideas if isinstance(i, dict) and str(i.get("id")) != exclude]
-    return jsonify({"matches": compare_ideas(text, cands)}), 200
+    return jsonify({"matches": compare_ideas(text, cands), "compared_with": len(cands)}), 200
 
 
 @ml_extra_bp.route("/api/ml/logreg-forecast", methods=["POST"])

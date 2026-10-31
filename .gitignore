@@ -28,3 +28,5 @@ hutil
 
 company_models/logreg.pkl
 app/__init__.py.bak
+app/__init__.py.bak2
+data/mentor_links.json

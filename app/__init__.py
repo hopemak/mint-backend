@@ -119,6 +119,7 @@ def register_blueprints(app):
         ('tasks', 'tasks_bp', '/api/tasks'),
         ('classify_routes', 'classify_bp', None),
         ('ml_extra_routes', 'ml_extra_bp', None),
+        ('mentor_workspace', 'mentor_workspace_bp', '/api/mentor-workspace'),
     ]
     
     for module_name, bp_name, url_prefix in blueprints:

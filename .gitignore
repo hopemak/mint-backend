@@ -35,3 +35,4 @@ data/investor_activity.json
 app/__init__.py.bak*
 data/mentor_links.json
 data/investor_activity.json
+app/routes/*.bak-debug

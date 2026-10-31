@@ -189,3 +189,59 @@ def link():
     data['links'][str(user_id)] = mentor_id
     _save_links(data)
     return jsonify({'success': True, 'links': data['links']}), 200
+
+
+# --- Auto-link with error capture (later definitions override the earlier ones) ---
+_LAST_ERROR = {'text': None}
+
+
+def _ensure_mentor_record(user):
+    mid = _my_mentor_id(user)
+    if mid:
+        return mid
+    from app.routes.mentors import save_mentors_data
+    data = get_mentors_data()
+    existing = {m.get('mentor_id') for m in data['mentors']}
+    n = len(data['mentors']) + 1
+    while f'M-{n:04d}' in existing:
+        n += 1
+    mentor_id = f'M-{n:04d}'
+    data['mentors'].append({
+        'mentor_id': mentor_id,
+        'full_name': user.get('full_name') or 'Mentor',
+        'email': user.get('email'),
+        'user_id': user['_id'],
+        'expertise_areas': user.get('expertise_areas', ''),
+        'years_experience': user.get('years_experience', 0),
+        'auto_created': True,
+        'created_at': datetime.utcnow().isoformat(),
+    })
+    save_mentors_data(data)
+    links = _links()
+    links['links'][str(user['_id'])] = mentor_id
+    _save_links(links)
+    return mentor_id
+
+
+def _current_mentor():
+    users = get_collection(USERS_COLLECTION)
+    user = users.find_one({'_id': get_jwt_identity()})
+    if not user or user.get('role') != 'mentor' or user.get('status') != 'active':
+        return None, None, (jsonify({'error': 'An approved mentor account is required'}), 403)
+    try:
+        mid = _ensure_mentor_record(user)
+        _LAST_ERROR['text'] = None
+    except Exception:
+        import traceback
+        _LAST_ERROR['text'] = traceback.format_exc()[-900:]
+        mid = None
+    return user, mid, None
+
+
+@mentor_workspace_bp.route('/debug', methods=['GET'])
+@jwt_required()
+def debug_link():
+    user, mid, err = _current_mentor()
+    if err:
+        return err
+    return jsonify({'mentor_id': mid, 'error': _LAST_ERROR['text']}), 200

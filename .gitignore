@@ -30,3 +30,5 @@ company_models/logreg.pkl
 app/__init__.py.bak
 app/__init__.py.bak2
 data/mentor_links.json
+app/__init__.py.bak3
+data/investor_activity.json

@@ -32,3 +32,6 @@ app/__init__.py.bak2
 data/mentor_links.json
 app/__init__.py.bak3
 data/investor_activity.json
+app/__init__.py.bak*
+data/mentor_links.json
+data/investor_activity.json
